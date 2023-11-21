@@ -104,7 +104,7 @@ public class Player {
             jsonPlayer.put("state", JSONObject.NULL);
         }
         jsonPlayer.put("points", this.points);
-        jsonPlayer.put("user", this.user.toJSON());
+        jsonPlayer.put("user", this.user.toJSONObject());
 
         return jsonPlayer;
     }

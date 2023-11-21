@@ -26,7 +26,7 @@ public class JSONGeneratorOf {
     public static String signUpRequest(User newUser) throws JSONException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("RequestType", "SIGN_UP_REQUEST");
-        jsonObject.put("newUser", newUser.toJSON());
+        jsonObject.put("newUser", newUser.toJSONObject());
         return jsonObject.toString();
     }
 

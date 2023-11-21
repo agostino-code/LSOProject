@@ -119,7 +119,7 @@ public class LoginActivity extends AppCompatActivity {
     private void updateUiWithUser(User user) {
         Intent switchActivities = new Intent(this, MenuActivity.class);
         try {
-            switchActivities.putExtra("jsonUser", user.toJSON().toString());
+            switchActivities.putExtra("jsonUser", user.toJSONObject().toString());
         } catch (JSONException e) {
             showLoginFailed(R.string.login_failed);
         }

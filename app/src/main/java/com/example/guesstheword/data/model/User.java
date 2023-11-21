@@ -5,8 +5,9 @@ import androidx.annotation.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class User {
+public class User implements JSONData{
 
+    public static final int AVATAR_NULL = 0;
     public static final int AVATAR_1 = 1;
     public static final int AVATAR_2 = 2;
     public static final int AVATAR_3 = 3;
@@ -28,6 +29,7 @@ public class User {
     private final String email;
     @Nullable
     private String password;
+    @Nullable
     private String username;
     private int avatar;
 
@@ -57,6 +59,18 @@ public class User {
         this.avatar = avatar;
         email = null;
         password = null;
+    }
+
+    /**
+     * Constructor called for the sign in
+     * @param email    must respect the RFC 5322 email format (unique attribute)
+     * @param password at least 5 characters
+     */
+    public User(@NonNull String email, @NonNull String password) {
+        this.email = email;
+        this.password = password;
+        username = null;
+        avatar = AVATAR_NULL;
     }
 
     /**
@@ -128,7 +142,7 @@ public class User {
     /**
      * @return a JSON string representing the User
      */
-    public JSONObject toJSON() throws JSONException {
+    public JSONObject toJSONObject() throws JSONException {
         JSONObject jsonUser = new JSONObject();
 
         if (email != null) {
@@ -141,9 +155,22 @@ public class User {
         } else {
             jsonUser.put("password", JSONObject.NULL);
         }
-        jsonUser.put("username", this.username);
-        jsonUser.put("avatar", this.avatar);
+        if (username != null) {
+            jsonUser.put("username", this.username);
+        } else {
+            jsonUser.put("username", JSONObject.NULL);
+        }
+        if(avatar != AVATAR_NULL) {
+            jsonUser.put("avatar", this.avatar);
+        } else {
+            jsonUser.put("avatar", JSONObject.NULL);
+        }
 
         return jsonUser;
+    }
+
+    @Override
+    public String toJson() throws JSONException {
+        return this.toJSONObject().toString();
     }
 }

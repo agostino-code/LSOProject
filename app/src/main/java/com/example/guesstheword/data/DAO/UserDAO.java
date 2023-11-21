@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import com.example.guesstheword.data.model.Request;
+import com.example.guesstheword.data.model.Response;
 import com.example.guesstheword.data.model.User;
 import com.example.guesstheword.server.JSONGeneratorOf;
 import com.example.guesstheword.server.SocketManager;
@@ -70,10 +72,16 @@ public class UserDAO {
      */
     public void retriveUser(String email, String password) throws UserNotFoundException, WrongPasswordException, JSONException, IOException {
         //TODO per agostino: implement this method. Retrieve user from server
-        socketManager.sendRequest(JSONGeneratorOf.signInRequest(email,password));
-        String jsonResponse = socketManager.getResponse();
-
-        throw new UserNotFoundException();
+        Request request = new Request("SIGN_IN", new User(email, password));
+        socketManager.sendRequest(request.toJson());
+        Response response = new Response(socketManager.getResponse());
+//        switch()
+//        if () {
+//            if (response.getResponseType()!="SUCCESS")
+//            throw new UserNotFoundException();
+//        } else {
+//            user = new User(response.getObject());
+//        }
     }
 
     /**
