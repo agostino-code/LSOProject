@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">Guess The Word</string>
+    <string name="title_description">image showing the title of the main menu of the game</string>
+    <string name="connection_failed">Connection error</string>
+
+    <!-- Strings related to login and registration -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="prompt_repeat_password">Repeat password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="welcome">"Welcome "</string>
+    <string name="invalid_email">Not a valid e-mail</string>
+    <string name="invalid_username">Username must contains 1–30 letters, numbers and underscores, with a letter as first character</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="invalid_repeat_password">Passwords are not identical</string>
+    <string name="email_already_existent">This email is already registered, please login</string>
+    <string name="username_already_taken">This username has already been taken</string>
+    <string name="wrong_password">Wrong password</string>
+    <string name="user_not_found">User not found</string>
+    <string name="login_failed">Login failed</string>
+    <string name="registration_failed">Registration failed</string>
+    <string name="no_account">No account? </string>
+
+    <!-- Strings related to the home menu -->
+    <string name="create_game_button_name">CREATE GAME</string>
+    <string name="find_game_button_name">FIND GAME</string>
+    <string name="settings_button_name">SETTINGS</string>
+
+    <!-- Strings related to the game -->
+    <string name="game_chat_message_hint">Enter a guess or a message</string>
+
+    <!-- Strings related to the creation of a new game menu -->
+    <string name="prompt_room_name">Name of the room</string>
+    <string-array name="languages">
+        <item>English</item>
+        <item>Italian</item>
+        <item>German</item>
+        <item>French</item>
+    </string-array>
+
+    <string-array name="player_numbers">
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+
+
+</resources>
