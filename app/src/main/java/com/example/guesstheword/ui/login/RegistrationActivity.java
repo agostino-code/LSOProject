@@ -1,5 +1,6 @@
 package com.example.guesstheword.ui.login;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextWatcher;
@@ -79,14 +80,22 @@ public class RegistrationActivity extends AppCompatActivity {
             }
         });
 
-        registrationViewModel.getUserLiveData().observe(this, new Observer<User>() {
+        registrationViewModel.getRegistrationResult().observe(this, new Observer<SignResult>() {
             @Override
-            public void onChanged(@Nullable User user) {
-                if (user == null) {
+            public void onChanged(@Nullable SignResult signResult) {
+                if (signResult == null) {
                     return;
                 }
-                loadingProgressBar.setVisibility(View.GONE);
-                updateUiWithUser(user);
+                if(signResult.getSuccess() != null) {
+                    loadingProgressBar.setVisibility(View.GONE);
+                    updateUiWithUser(signResult.getSuccess());
+                    setResult(Activity.RESULT_OK);
+
+                    //Complete and destroy login activity once successful
+                    finish();
+                } else if (signResult.getError() != null) {
+                    showRegistrationFailed(signResult.getError());
+                }
             }
         });
         TextWatcher afterTextChangedListener = new TextWatcher() {
@@ -130,7 +139,7 @@ public class RegistrationActivity extends AppCompatActivity {
                         emailEditText.getText().toString(), passwordEditText.getText().toString(),
                         mainAvatarImageId, v.getContext());
                 if(!registrationViewModel.getRegistrationFormState().getValue().isDataValid()) {
-                    showRegistrationFailed(R.string.registration_failed);
+                    showRegistrationFailed(getString(R.string.registration_failed));
                 }
             }
         });
@@ -151,14 +160,14 @@ public class RegistrationActivity extends AppCompatActivity {
         try {
             switchActivities.putExtra("jsonUser", user.toJSONObject().toString());
         } catch (JSONException e) {
-            showRegistrationFailed(R.string.registration_failed);
+            showRegistrationFailed(getString(R.string.registration_failed));
         }
         String welcome = getString(R.string.welcome) + " " + user.getUsername() + "!";
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
         startActivity(switchActivities);
     }
 
-    private void showRegistrationFailed(@StringRes Integer errorString) {
+    private void showRegistrationFailed(String errorString) {
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
     }
 
