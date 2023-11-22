@@ -8,16 +8,18 @@ import com.example.guesstheword.data.model.User;
  */
 class SignResult {
     @Nullable
-    private User success;
+    private final User success;
     @Nullable
-    private String error;
+    private final String error;
 
     SignResult(@Nullable String error) {
         this.error = error;
+        success = null;
     }
 
     SignResult(@Nullable User success) {
         this.success = success;
+        error = null;
     }
 
     @Nullable

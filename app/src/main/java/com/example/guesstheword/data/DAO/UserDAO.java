@@ -32,6 +32,7 @@ public class UserDAO {
 
     private SocketManager socketManager;
     boolean socketBound = false;
+
     private final ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -51,8 +52,9 @@ public class UserDAO {
      * @param context The Activity who this class came from
      */
     public UserDAO(Context context) {
-        Intent intent = new Intent(context, SocketManager.class);
-        context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        //QUESTI DUE RIGHI FANNO CRASHARE L'APP
+        //Intent intent = new Intent(context, SocketManager.class);
+        //context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
     /**
@@ -63,10 +65,13 @@ public class UserDAO {
      * @throws ResponseErrorException if the server returns an error like "user not found" or "wrong password"
      */
     public void retriveUser(String email, String password) throws ResponseErrorException, JSONException, IOException {
+        user = new User(email, password, "Agostino", 1); //TEST MIO PER VEDERE SE FUNZIONA, DA CANCELLARE
+
         //TODO per agostino: implement this method. Retrieve user from server
         Request request = new Request("SIGN_IN", new User(email, password));
-        socketManager.sendRequest(request.toJson());
-        Response response = new Response(socketManager.getResponse());
+        //SE DECOMMENTO QUESTE RIGHE CRASHA
+//        socketManager.sendRequest(request.toJson()); //QUESTO RIGO CRASHA.
+//        Response response = new Response(socketManager.getResponse());
 //        switch()
 //        if () {
 //            if (response.getResponseType()!="SUCCESS")

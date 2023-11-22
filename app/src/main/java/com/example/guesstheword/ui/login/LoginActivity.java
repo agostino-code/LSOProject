@@ -22,6 +22,11 @@ public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
 
+    private EditText emailEditText;
+    private EditText passwordEditText;
+    private Button loginButton;
+    private ProgressBar loadingProgressBar;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -32,11 +37,10 @@ public class LoginActivity extends AppCompatActivity {
 
         loginViewModel = new LoginViewModel();
 
-        final EditText emailEditText = binding.loginEmail;
-        final EditText passwordEditText = binding.loginPassword;
-        final Button loginButton = binding.signInButton;
-        final ProgressBar loadingProgressBar = binding.loginLoading;
-        final TextView signUpLink = binding.signUpLink;
+        emailEditText = binding.loginEmail;
+        passwordEditText = binding.loginPassword;
+        loginButton = binding.signInButton;
+        loadingProgressBar = binding.loginLoading;
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
             @Override
@@ -63,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                 loadingProgressBar.setVisibility(View.GONE);
                 if (signResult.getError() != null) {
                     showLoginFailed(signResult.getError());
+                    showLoginFailed(getString(R.string.login_failed));
                 }
                 if (signResult.getSuccess() != null) {
                     updateUiWithUser(signResult.getSuccess());

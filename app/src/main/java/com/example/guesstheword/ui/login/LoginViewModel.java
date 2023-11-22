@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.example.guesstheword.R;
 import com.example.guesstheword.data.DAO.UserDAO;
+import com.example.guesstheword.data.model.User;
+
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -29,7 +31,8 @@ public class LoginViewModel extends ViewModel {
         try {
             UserDAO userDAO = new UserDAO(context);
             userDAO.retriveUser(email, password);
-            loginResult.setValue(new SignResult(userDAO.getUser()));
+            User user = userDAO.getUser();
+            loginResult.setValue(new SignResult(user));
         } catch (UserDAO.ResponseErrorException exception) {
             if(exception.getMessage() != null) {
                 loginResult.setValue(new SignResult(exception.getMessage()));
@@ -70,14 +73,6 @@ public class LoginViewModel extends ViewModel {
         Pattern pattern = Pattern.compile(regular_expression);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
-
-        /*
-        if (email.contains("@")) {
-            return Patterns.EMAIL_ADDRESS.matcher(email).matches();
-        } else {
-            return !email.trim().isEmpty();
-        }
-        */
     }
 
     /**

@@ -86,8 +86,9 @@ public class RegistrationActivity extends AppCompatActivity {
                 if (signResult == null) {
                     return;
                 }
+
+                loadingProgressBar.setVisibility(View.GONE);
                 if(signResult.getSuccess() != null) {
-                    loadingProgressBar.setVisibility(View.GONE);
                     updateUiWithUser(signResult.getSuccess());
                     setResult(Activity.RESULT_OK);
 
@@ -95,6 +96,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     finish();
                 } else if (signResult.getError() != null) {
                     showRegistrationFailed(signResult.getError());
+                    showRegistrationFailed(getString(R.string.registration_failed));
                 }
             }
         });
@@ -138,9 +140,6 @@ public class RegistrationActivity extends AppCompatActivity {
                 registrationViewModel.signUp(usernameEditText.getText().toString(),
                         emailEditText.getText().toString(), passwordEditText.getText().toString(),
                         mainAvatarImageId, v.getContext());
-                if(!registrationViewModel.getRegistrationFormState().getValue().isDataValid()) {
-                    showRegistrationFailed(getString(R.string.registration_failed));
-                }
             }
         });
 
@@ -229,5 +228,10 @@ public class RegistrationActivity extends AppCompatActivity {
             mainAvatarImageId = 16;
         }
         avatarsGrid.setVisibility(View.GONE);
+    }
+
+    public void goToLoginActivity(View view) {
+        Intent switchActivities = new Intent(this, LoginActivity.class);
+        startActivity(switchActivities);
     }
 }

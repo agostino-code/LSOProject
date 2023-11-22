@@ -62,7 +62,7 @@ public class User implements JSONData{
     }
 
     /**
-     * Constructor called for the sign in
+     * Constructor called for the sign in, used for a temporary istance of this class
      * @param email    must respect the RFC 5322 email format (unique attribute)
      * @param password at least 5 characters
      */
