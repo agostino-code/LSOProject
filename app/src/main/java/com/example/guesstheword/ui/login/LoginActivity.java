@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import com.example.guesstheword.R;
@@ -55,18 +54,18 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
+        loginViewModel.getLoginResult().observe(this, new Observer<SignResult>() {
             @Override
-            public void onChanged(@Nullable LoginResult loginResult) {
-                if (loginResult == null) {
+            public void onChanged(@Nullable SignResult signResult) {
+                if (signResult == null) {
                     return;
                 }
                 loadingProgressBar.setVisibility(View.GONE);
-                if (loginResult.getError() != null) {
-                    showLoginFailed(loginResult.getError());
+                if (signResult.getError() != null) {
+                    showLoginFailed(signResult.getError());
                 }
-                if (loginResult.getSuccess() != null) {
-                    updateUiWithUser(loginResult.getSuccess());
+                if (signResult.getSuccess() != null) {
+                    updateUiWithUser(signResult.getSuccess());
                     setResult(Activity.RESULT_OK);
 
                     //Complete and destroy login activity once successful
@@ -121,7 +120,7 @@ public class LoginActivity extends AppCompatActivity {
         try {
             switchActivities.putExtra("jsonUser", user.toJSONObject().toString());
         } catch (JSONException e) {
-            showLoginFailed(R.string.login_failed);
+            showLoginFailed(getString(R.string.login_failed));
         }
         String welcome = getString(R.string.welcome) + user.getUsername();
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
@@ -129,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(switchActivities);
     }
 
-    private void showLoginFailed(@StringRes Integer errorString) {
+    private void showLoginFailed(String errorString) {
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
     }
 

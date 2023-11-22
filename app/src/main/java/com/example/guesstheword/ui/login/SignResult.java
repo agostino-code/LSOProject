@@ -6,17 +6,17 @@ import com.example.guesstheword.data.model.User;
 /**
  * Authentication result : success (user details) or error message.
  */
-class LoginResult {
+class SignResult {
     @Nullable
     private User success;
     @Nullable
-    private Integer error;
+    private String error;
 
-    LoginResult(@Nullable Integer error) {
+    SignResult(@Nullable String error) {
         this.error = error;
     }
 
-    LoginResult(@Nullable User success) {
+    SignResult(@Nullable User success) {
         this.success = success;
     }
 
@@ -26,7 +26,7 @@ class LoginResult {
     }
 
     @Nullable
-    Integer getError() {
+    String getError() {
         return error;
     }
 }

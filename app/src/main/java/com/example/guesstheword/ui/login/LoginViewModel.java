@@ -15,13 +15,13 @@ import java.util.regex.Pattern;
 public class LoginViewModel extends ViewModel {
 
     private final MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
-    private final MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
+    private final MutableLiveData<SignResult> loginResult = new MutableLiveData<>();
 
     LiveData<LoginFormState> getLoginFormState() {
         return loginFormState;
     }
 
-    LiveData<LoginResult> getLoginResult() {
+    LiveData<SignResult> getLoginResult() {
         return loginResult;
     }
 
@@ -29,30 +29,23 @@ public class LoginViewModel extends ViewModel {
         try {
             UserDAO userDAO = new UserDAO(context);
             userDAO.retriveUser(email, password);
-            loginResult.setValue(new LoginResult(userDAO.getUser()));
-        } catch (UserDAO.UserNotFoundException e) {
-            loginResult.setValue(new LoginResult(R.string.user_not_found));
-            loginFormState.setValue(new LoginFormState(R.string.user_not_found, null));
-        } catch (UserDAO.WrongPasswordException e) {
-            loginResult.setValue(new LoginResult(R.string.wrong_password));
-            loginFormState.setValue(new LoginFormState(null, R.string.wrong_password));
+            loginResult.setValue(new SignResult(userDAO.getUser()));
+        } catch (UserDAO.ResponseErrorException exception) {
+            if(exception.getMessage() != null) {
+                loginResult.setValue(new SignResult(exception.getMessage()));
+                if( exception.getMessage().equals(context.getString(R.string.user_not_found)) ) {
+                    loginFormState.setValue(new LoginFormState(R.string.user_not_found, null));
+                } else if( exception.getMessage().equals(context.getString(R.string.wrong_password)) ) {
+                    loginFormState.setValue(new LoginFormState(null, R.string.wrong_password));
+                }
+            } else {
+                loginResult.setValue(new SignResult(context.getString(R.string.login_failed)));
+            }
         } catch (JSONException e) {
-            loginResult.setValue(new LoginResult(R.string.login_failed));
+            loginResult.setValue(new SignResult(context.getString(R.string.login_failed)));
         } catch (IOException e) {
-            loginResult.setValue(new LoginResult(R.string.connection_failed));
+            loginResult.setValue(new SignResult(context.getString(R.string.connection_failed)));
         }
-
-        /*
-        // can be launched in a separate asynchronous job
-        Result<LoggedInUser> result = loginRepository.login(email, password);
-
-        if (result instanceof Result.Success) {
-            LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-
-        } else {
-            loginResult.setValue(new LoginResult(R.string.login_failed));
-        }
-        */
     }
 
     public void loginDataChanged(String email, String password) {

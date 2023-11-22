@@ -16,24 +16,17 @@ import java.io.IOException;
 
 public class UserDAO {
     /**
-     * Email must be unique
+     * Generics errors from the server, for istance:
+     * - email already existent
+     * - username already taken
+     * - wrong password
+     * - user not found
      */
-    public static class EmailAlreadyExistentException extends Exception {}
-
-    /**
-     * Username is primary key, so it must be unique
-     */
-    public static class UsernameAlreadyTakenException extends Exception {}
-
-    /**
-     * User not found in the database
-     */
-    public static class UserNotFoundException extends Exception {}
-
-    /**
-     * password or email incorrect
-     */
-    public static class WrongPasswordException extends Exception {}
+    public static class ResponseErrorException extends Exception {
+        public ResponseErrorException(String message) {
+            super(message);
+        }
+    }
 
     private User user;
 
@@ -67,10 +60,9 @@ public class UserDAO {
      * @param email
      * @param password
      * @return
-     * @throws UserNotFoundException
-     * @throws WrongPasswordException
+     * @throws ResponseErrorException if the server returns an error like "user not found" or "wrong password"
      */
-    public void retriveUser(String email, String password) throws UserNotFoundException, WrongPasswordException, JSONException, IOException {
+    public void retriveUser(String email, String password) throws ResponseErrorException, JSONException, IOException {
         //TODO per agostino: implement this method. Retrieve user from server
         Request request = new Request("SIGN_IN", new User(email, password));
         socketManager.sendRequest(request.toJson());
@@ -86,10 +78,9 @@ public class UserDAO {
 
     /**
      * Called when the user signs up. It sends the new user to the server
-     * @throws EmailAlreadyExistentException
-     * @throws UsernameAlreadyTakenException
+     * @throws ResponseErrorException if the server returns an error like "email already existent" or "username already taken"
      */
-    public void sendNewUserToServer(User user) throws EmailAlreadyExistentException, UsernameAlreadyTakenException {
+    public void sendNewUserToServer(User user) throws ResponseErrorException, JSONException, IOException {
         //TODO per agostino: implement this method. Send user to server
     }
 

@@ -8,15 +8,18 @@ import com.example.guesstheword.R;
 import com.example.guesstheword.data.DAO.UserDAO;
 import com.example.guesstheword.data.model.User;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegistrationViewModel extends ViewModel {
-    private final MutableLiveData<User> userLiveData = new MutableLiveData<>();
+    private final MutableLiveData<SignResult> registrationResult = new MutableLiveData<>();
     private final MutableLiveData<RegistrationFormState> registrationFormState = new MutableLiveData<>();
 
-    public LiveData<User> getUserLiveData() {
-        return userLiveData;
+    public LiveData<SignResult> getRegistrationResult() {
+        return registrationResult;
     }
 
     public LiveData<RegistrationFormState> getRegistrationFormState() {
@@ -34,11 +37,22 @@ public class RegistrationViewModel extends ViewModel {
             UserDAO userDAO = new UserDAO(context);
             userDAO.sendNewUserToServer(user);
             registrationFormState.setValue(new RegistrationFormState(true));
-            userLiveData.setValue(new User(email, password, username, avatar));
-        } catch (UserDAO.EmailAlreadyExistentException e) {
-            registrationFormState.setValue(new RegistrationFormState(null, R.string.email_already_existent, null, null, true));
-        } catch (UserDAO.UsernameAlreadyTakenException e) {
-            registrationFormState.setValue(new RegistrationFormState(R.string.username_already_taken, null, null, null, true));
+            registrationResult.setValue(new SignResult(user));
+        } catch (UserDAO.ResponseErrorException exception) {
+            if (exception.getMessage() != null) {
+                registrationResult.setValue(new SignResult(exception.getMessage()));
+                if (exception.getMessage().equals(context.getString(R.string.email_already_existent))) {
+                    registrationFormState.setValue(new RegistrationFormState(null, R.string.email_already_existent, null, null, true));
+                } else if (exception.getMessage().equals(context.getString(R.string.username_already_taken))) {
+                    registrationFormState.setValue(new RegistrationFormState(R.string.username_already_taken, null, null, null, true));
+                }
+            } else {
+                registrationResult.setValue(new SignResult(context.getString(R.string.registration_failed)));
+            }
+        } catch (JSONException e) {
+            registrationResult.setValue(new SignResult(context.getString(R.string.registration_failed)));
+        } catch (IOException e) {
+            registrationResult.setValue(new SignResult(context.getString(R.string.connection_failed)));
         }
     }
 
