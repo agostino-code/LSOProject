@@ -1,22 +1,22 @@
 package com.example.guesstheword.ui.login;
 
-import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
+import android.content.ServiceConnection;
+import android.os.*;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.*;
-import androidx.annotation.Nullable;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import com.example.guesstheword.R;
-import com.example.guesstheword.databinding.ActivityLoginBinding;
+import com.example.guesstheword.data.model.Request;
 import com.example.guesstheword.data.model.User;
-import com.example.guesstheword.ui.menu.MenuActivity;
-import org.json.JSONException;
+import com.example.guesstheword.databinding.ActivityLoginBinding;
+import com.example.guesstheword.server.SocketManager;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -24,125 +24,160 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText emailEditText;
     private EditText passwordEditText;
-    private Button loginButton;
     private ProgressBar loadingProgressBar;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-
-        com.example.guesstheword.databinding.ActivityLoginBinding binding = ActivityLoginBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        loginViewModel = new LoginViewModel();
-
-        emailEditText = binding.loginEmail;
-        passwordEditText = binding.loginPassword;
-        loginButton = binding.signInButton;
-        loadingProgressBar = binding.loginLoading;
-
-        loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
-            @Override
-            public void onChanged(@Nullable LoginFormState loginFormState) {
-                if (loginFormState == null) {
-                    return;
-                }
-                loginButton.setEnabled(loginFormState.isDataValid());
-                if (loginFormState.getEmailError() != null) {
-                    emailEditText.setError(getString(loginFormState.getEmailError()));
-                }
-                if (loginFormState.getPasswordError() != null) {
-                    passwordEditText.setError(getString(loginFormState.getPasswordError()));
-                }
-            }
-        });
-
-        loginViewModel.getLoginResult().observe(this, new Observer<SignResult>() {
-            @Override
-            public void onChanged(@Nullable SignResult signResult) {
-                if (signResult == null) {
-                    return;
-                }
-                loadingProgressBar.setVisibility(View.GONE);
-                if (signResult.getError() != null) {
-                    showLoginFailed(signResult.getError());
-                    showLoginFailed(getString(R.string.login_failed));
-                }
-                if (signResult.getSuccess() != null) {
-                    updateUiWithUser(signResult.getSuccess());
-                    setResult(Activity.RESULT_OK);
-
-                    //Complete and destroy login activity once successful
-                    finish();
-                }
-            }
-        });
-
-        TextWatcher afterTextChangedListener = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // ignore
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // ignore
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                loginViewModel.loginDataChanged(emailEditText.getText().toString(),
-                        passwordEditText.getText().toString());
-            }
-        };
-        emailEditText.addTextChangedListener(afterTextChangedListener);
-        passwordEditText.addTextChangedListener(afterTextChangedListener);
-        passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    loginViewModel.login(emailEditText.getText().toString(),
-                            passwordEditText.getText().toString(), v.getContext());
-                }
-                return false;
-            }
-        });
-
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadingProgressBar.setVisibility(View.VISIBLE);
-                loginViewModel.login(emailEditText.getText().toString(),
-                        passwordEditText.getText().toString(), v.getContext());
-            }
-        });
-    }
-
-    private void updateUiWithUser(User user) {
-        Intent switchActivities = new Intent(this, MenuActivity.class);
-        try {
-            switchActivities.putExtra("jsonUser", user.toJSONObject().toString());
-        } catch (JSONException e) {
-            showLoginFailed(getString(R.string.login_failed));
-        }
-        String welcome = getString(R.string.welcome) + user.getUsername();
-        Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
-
-        startActivity(switchActivities);
-    }
-
-    private void showLoginFailed(String errorString) {
-        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
-    }
-
-    private void signIn() {
-        //TODO : fai in lower case l'email
-    }
 
     public void goToRegistrationActivity(View view) {
         Intent switchActivities = new Intent(this, RegistrationActivity.class);
         startActivity(switchActivities);
     }
-}
+
+        /** Messenger for communicating with the service. */
+        Messenger mService = null;
+
+        /** Flag indicating whether we have called bind on the service. */
+        boolean bound;
+
+        /**
+         * Class for interacting with the main interface of the service.
+         */
+        private final ServiceConnection mConnection = new ServiceConnection() {
+            public void onServiceConnected(ComponentName className, IBinder service) {
+                // This is called when the connection with the service has been
+                // established, giving us the object we can use to
+                // interact with the service.  We are communicating with the
+                // service using a Messenger, so here we get a client-side
+                // representation of that from the raw IBinder object.
+                mService = new Messenger(service);
+                bound = true;
+            }
+
+            public void onServiceDisconnected(ComponentName className) {
+                // This is called when the connection with the service has been
+                // unexpectedly disconnected&mdash;that is, its process crashed.
+                mService = null;
+                bound = false;
+            }
+        };
+
+        public void SignIn(View v) {
+            if (!bound) return;
+            // Create and send a message to the service, using a supported 'what' value.
+
+            User user = new User(emailEditText.getText().toString(), passwordEditText.getText().toString());
+            Message msg = Message.obtain(null, SocketManager.SIGN_IN, user);
+//            msg.obj = new Request("SIGN_IN", user);
+//            msg = Message.obtain(null, SocketManager.SIGN_IN, 0, 0);
+            try {
+                mService.send(msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            com.example.guesstheword.databinding.ActivityLoginBinding binding = ActivityLoginBinding.inflate(getLayoutInflater());
+            setContentView(binding.getRoot());
+
+            loginViewModel = new LoginViewModel();
+
+            emailEditText = binding.loginEmail;
+            passwordEditText = binding.loginPassword;
+            Button loginButton = binding.signInButton;
+            loadingProgressBar = binding.loginLoading;
+
+//            loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
+//                @Override
+//                public void onChanged(@Nullable LoginFormState loginFormState) {
+//                    if (loginFormState == null) {
+//                        return;
+//                    }
+//                    loginButton.setEnabled(loginFormState.isDataValid());
+//                    if (loginFormState.getEmailError() != null) {
+//                        emailEditText.setError(getString(loginFormState.getEmailError()));
+//                    }
+//                    if (loginFormState.getPasswordError() != null) {
+//                        passwordEditText.setError(getString(loginFormState.getPasswordError()));
+//                    }
+//                }
+//            });
+
+//            loginViewModel.getLoginResult().observe(this, new Observer<SignResult>() {
+//                @Override
+//                public void onChanged(@Nullable SignResult signResult) {
+//                    if (signResult == null) {
+//                        return;
+//                    }
+//                    loadingProgressBar.setVisibility(View.GONE);
+//                    if (signResult.getError() != null) {
+//                        showLoginFailed(signResult.getError());
+//                        showLoginFailed(getString(R.string.login_failed));
+//                    }
+//                    if (signResult.getSuccess() != null) {
+//                        updateUiWithUser(signResult.getSuccess());
+//                        setResult(Activity.RESULT_OK);
+//
+//                        //Complete and destroy login activity once successful
+//                        finish();
+//                    }
+//                }
+//            });
+
+            TextWatcher afterTextChangedListener = new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    // ignore
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    // ignore
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    loginViewModel.loginDataChanged(emailEditText.getText().toString(),
+                            passwordEditText.getText().toString());
+                }
+            };
+//            emailEditText.addTextChangedListener(afterTextChangedListener);
+//            passwordEditText.addTextChangedListener(afterTextChangedListener);
+//            passwordEditText.setOnEditorActionListener((v, actionId, event) -> {
+//                if (actionId == EditorInfo.IME_ACTION_DONE) {
+////                        loginViewModel.login(emailEditText.getText().toString(),
+////                                passwordEditText.getText().toString(), v.getContext());
+//                    SignIn(v);
+//                }
+//                return false;
+//            });
+
+            loginButton.setOnClickListener(v -> {
+                loadingProgressBar.setVisibility(View.VISIBLE);
+//                    loginViewModel.login(emailEditText.getText().toString(),
+//                            passwordEditText.getText().toString(), v.getContext());
+                SignIn(v);
+            });
+        }
+
+        @Override
+        protected void onStart() {
+            super.onStart();
+            // Bind to the service.
+            bindService(new Intent(this, SocketManager.class), mConnection,
+                    Context.BIND_AUTO_CREATE);
+        }
+
+        @Override
+        protected void onStop() {
+            super.onStop();
+            // Unbind from the service.
+            if (bound) {
+                unbindService(mConnection);
+                bound = false;
+            }
+        }
+
+    }

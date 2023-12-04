@@ -10,13 +10,17 @@ public class Response {
     public String getResponseType() { return responseType; }
     public void setResponseType(String value) { this.responseType = value; }
 
-    public String getObject() { return data; }
-    public void setObject(String value) { this.data = value; }
+    public String getMessage() { return data; }
+    public void setMessage(String value) { this.data = value; }
 
-    public Response(String json) throws JSONException {
-        JSONObject jsonObject= new JSONObject(json);
-        setResponseType(jsonObject.getString("responseType"));
-        setObject(jsonObject.getString("data"));
+    public Response(String json){
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            setResponseType(jsonObject.getString("responseType"));
+            setMessage(jsonObject.getString("data"));
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

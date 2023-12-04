@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.example.guesstheword.R;
-import com.example.guesstheword.data.DAO.UserDAO;
 import com.example.guesstheword.data.model.User;
 
 import org.json.JSONException;
@@ -32,28 +31,28 @@ public class RegistrationViewModel extends ViewModel {
      * @param username must be a new username, not an already existing one on the database
      */
     public void signUp(String username, String email, String password, int avatar, Context context) {
-        try {
-            User user = new User(username, email, password, avatar);
-            UserDAO userDAO = new UserDAO(context);
-            userDAO.sendNewUserToServer(user);
-            registrationFormState.setValue(new RegistrationFormState(true));
-            registrationResult.setValue(new SignResult(user));
-        } catch (UserDAO.ResponseErrorException exception) {
-            if (exception.getMessage() != null) {
-                registrationResult.setValue(new SignResult(exception.getMessage()));
-                if (exception.getMessage().equals(context.getString(R.string.email_already_existent))) {
-                    registrationFormState.setValue(new RegistrationFormState(null, R.string.email_already_existent, null, null, true));
-                } else if (exception.getMessage().equals(context.getString(R.string.username_already_taken))) {
-                    registrationFormState.setValue(new RegistrationFormState(R.string.username_already_taken, null, null, null, true));
-                }
-            } else {
-                registrationResult.setValue(new SignResult(context.getString(R.string.registration_failed)));
-            }
-        } catch (JSONException e) {
-            registrationResult.setValue(new SignResult(context.getString(R.string.registration_failed)));
-        } catch (IOException e) {
-            registrationResult.setValue(new SignResult(context.getString(R.string.connection_failed)));
-        }
+//        try {
+//            User user = new User(username, email, password, avatar);
+//            UserDAO userDAO = new UserDAO(context);
+//            userDAO.sendNewUserToServer(user);
+//            registrationFormState.setValue(new RegistrationFormState(true));
+//            registrationResult.setValue(new SignResult(user));
+//        } catch (UserDAO.ResponseErrorException exception) {
+//            if (exception.getMessage() != null) {
+//                registrationResult.setValue(new SignResult(exception.getMessage()));
+//                if (exception.getMessage().equals(context.getString(R.string.email_already_existent))) {
+//                    registrationFormState.setValue(new RegistrationFormState(null, R.string.email_already_existent, null, null, true));
+//                } else if (exception.getMessage().equals(context.getString(R.string.username_already_taken))) {
+//                    registrationFormState.setValue(new RegistrationFormState(R.string.username_already_taken, null, null, null, true));
+//                }
+//            } else {
+//                registrationResult.setValue(new SignResult(context.getString(R.string.registration_failed)));
+//            }
+//        } catch (JSONException e) {
+//            registrationResult.setValue(new SignResult(context.getString(R.string.registration_failed)));
+//        } catch (IOException e) {
+//            registrationResult.setValue(new SignResult(context.getString(R.string.connection_failed)));
+//        }
     }
 
     /**

@@ -14,16 +14,20 @@ public class Request {
     public JSONData getObject() { return data; }
 //    public void setObject(JSONData value) { this.data = value; }
 
-    public String toJson() throws JSONException {
+    public String toJson(){
         // Creare un oggetto JSON
         JSONObject jsonObject = new JSONObject();
 
         // Aggiungere i campi al JSON
-        jsonObject.put("requestType", getRequestType());
-        jsonObject.put("data", getObject().toJson());
+        try {
+            jsonObject.put("requestType", getRequestType());
+            jsonObject.put("data", getObject().toJson());
 
-        // Convertire l'oggetto JSON in una stringa
-        return jsonObject.toString();
+            // Convertire l'oggetto JSON in una stringa
+            return jsonObject.toString();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Request(String requestType, JSONData data){
