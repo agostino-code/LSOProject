@@ -38,11 +38,11 @@ public class RegistrationViewModel extends ViewModel {
 //            registrationFormState.setValue(new RegistrationFormState(true));
 //            registrationResult.setValue(new SignResult(user));
 //        } catch (UserDAO.ResponseErrorException exception) {
-//            if (exception.getMessage() != null) {
-//                registrationResult.setValue(new SignResult(exception.getMessage()));
-//                if (exception.getMessage().equals(context.getString(R.string.email_already_existent))) {
+//            if (exception.getData() != null) {
+//                registrationResult.setValue(new SignResult(exception.getData()));
+//                if (exception.getData().equals(context.getString(R.string.email_already_existent))) {
 //                    registrationFormState.setValue(new RegistrationFormState(null, R.string.email_already_existent, null, null, true));
-//                } else if (exception.getMessage().equals(context.getString(R.string.username_already_taken))) {
+//                } else if (exception.getData().equals(context.getString(R.string.username_already_taken))) {
 //                    registrationFormState.setValue(new RegistrationFormState(R.string.username_already_taken, null, null, null, true));
 //                }
 //            } else {

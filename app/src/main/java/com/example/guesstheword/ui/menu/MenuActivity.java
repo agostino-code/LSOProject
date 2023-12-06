@@ -23,14 +23,10 @@ public class MenuActivity extends AppCompatActivity {
         TextView usernameView = binding.menuProfileName;
 
         Intent messageIntent = getIntent();
-        try {
-            User user = new User(messageIntent.getStringExtra("jsonUser"));
-            UserView mainUser = new UserView(user, this);
-            profileImageView.setImageDrawable(mainUser.getAvatarDrawable());
-            usernameView.setText(mainUser.getUsername());
-        } catch (JSONException e) {
-            showErrorMessage("Error while parsing the user data");
-        }
+        User user = new User(messageIntent.getStringExtra("jsonUser"));
+        UserView mainUser = new UserView(user, this);
+        profileImageView.setImageDrawable(mainUser.getAvatarDrawable());
+        usernameView.setText(mainUser.getUsername());
     }
 
     public void goToFindGameActivity(View v) {

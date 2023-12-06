@@ -10,14 +10,14 @@ public class Response {
     public String getResponseType() { return responseType; }
     public void setResponseType(String value) { this.responseType = value; }
 
-    public String getMessage() { return data; }
-    public void setMessage(String value) { this.data = value; }
+    public String getData() { return data; }
+    public void setData(String value) { this.data = value; }
 
     public Response(String json){
         try {
             JSONObject jsonObject = new JSONObject(json);
             setResponseType(jsonObject.getString("responseType"));
-            setMessage(jsonObject.getString("data"));
+            setData(jsonObject.getString("data"));
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

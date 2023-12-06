@@ -1,5 +1,6 @@
 package com.example.guesstheword.ui.login;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.example.guesstheword.R;
@@ -10,11 +11,11 @@ import java.util.regex.Pattern;
 public class LoginViewModel extends ViewModel {
 
     private final MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
-    private final MutableLiveData<SignResult> loginResult = new MutableLiveData<>();
+//    private final MutableLiveData<SignResult> loginResult = new MutableLiveData<>();
 
-//    LiveData<LoginFormState> getLoginFormState() {
-//        return loginFormState;
-//    }
+    LiveData<LoginFormState> getLoginFormState() {
+        return loginFormState;
+    }
 //
 //    LiveData<SignResult> getLoginResult() {
 //        return loginResult;
@@ -27,11 +28,11 @@ public class LoginViewModel extends ViewModel {
 //            User user = userDAO.getUser();
 //            loginResult.setValue(new SignResult(user));
 //        } catch (UserDAO.ResponseErrorException exception) {
-//            if(exception.getMessage() != null) {
-//                loginResult.setValue(new SignResult(exception.getMessage()));
-//                if( exception.getMessage().equals(context.getString(R.string.user_not_found)) ) {
+//            if(exception.getData() != null) {
+//                loginResult.setValue(new SignResult(exception.getData()));
+//                if( exception.getData().equals(context.getString(R.string.user_not_found)) ) {
 //                    loginFormState.setValue(new LoginFormState(R.string.user_not_found, null));
-//                } else if( exception.getMessage().equals(context.getString(R.string.wrong_password)) ) {
+//                } else if( exception.getData().equals(context.getString(R.string.wrong_password)) ) {
 //                    loginFormState.setValue(new LoginFormState(null, R.string.wrong_password));
 //                }
 //            } else {
@@ -72,6 +73,6 @@ public class LoginViewModel extends ViewModel {
      * A placeholder password validation check
      */
     private boolean isPasswordValid(String password) {
-        return password != null && password.trim().length() > 4;
+        return password != null && password.trim().length() > 5;
     }
 }

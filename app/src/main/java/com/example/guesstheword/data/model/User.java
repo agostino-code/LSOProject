@@ -78,12 +78,17 @@ public class User implements JSONData{
      *
      * @param jsonUser a JSON string representing a User
      */
-    public User(String jsonUser) throws JSONException {
-        JSONObject jsonObject = new JSONObject(jsonUser);
+    public User(String jsonUser){
+        try {
+            JSONObject    jsonObject = new JSONObject(jsonUser);
+
         this.email = jsonObject.getString("email");
         this.password = jsonObject.getString("password");
         this.username = jsonObject.getString("username");
         this.avatar = jsonObject.getInt("avatar");
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

@@ -8,15 +8,14 @@ import android.os.*;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.guesstheword.data.model.Request;
+import com.example.guesstheword.data.SharedPreferencesManager;
 import com.example.guesstheword.data.model.User;
 import com.example.guesstheword.databinding.ActivityLoginBinding;
-import com.example.guesstheword.server.SocketManager;
+import com.example.guesstheword.server.SocketService;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -25,7 +24,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText emailEditText;
     private EditText passwordEditText;
     private ProgressBar loadingProgressBar;
-
 
     public void goToRegistrationActivity(View view) {
         Intent switchActivities = new Intent(this, RegistrationActivity.class);
@@ -65,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
             // Create and send a message to the service, using a supported 'what' value.
 
             User user = new User(emailEditText.getText().toString(), passwordEditText.getText().toString());
-            Message msg = Message.obtain(null, SocketManager.SIGN_IN, user);
+            Message msg = Message.obtain(null, SocketService.SIGN_IN, user);
 //            msg.obj = new Request("SIGN_IN", user);
 //            msg = Message.obtain(null, SocketManager.SIGN_IN, 0, 0);
             try {
@@ -89,21 +87,18 @@ public class LoginActivity extends AppCompatActivity {
             Button loginButton = binding.signInButton;
             loadingProgressBar = binding.loginLoading;
 
-//            loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
-//                @Override
-//                public void onChanged(@Nullable LoginFormState loginFormState) {
-//                    if (loginFormState == null) {
-//                        return;
-//                    }
-//                    loginButton.setEnabled(loginFormState.isDataValid());
-//                    if (loginFormState.getEmailError() != null) {
-//                        emailEditText.setError(getString(loginFormState.getEmailError()));
-//                    }
-//                    if (loginFormState.getPasswordError() != null) {
-//                        passwordEditText.setError(getString(loginFormState.getPasswordError()));
-//                    }
-//                }
-//            });
+            loginViewModel.getLoginFormState().observe(this, loginFormState -> {
+                if (loginFormState == null) {
+                    return;
+                }
+                loginButton.setEnabled(loginFormState.isDataValid());
+                if (loginFormState.getEmailError() != null) {
+                    emailEditText.setError(getString(loginFormState.getEmailError()));
+                }
+                if (loginFormState.getPasswordError() != null) {
+                    passwordEditText.setError(getString(loginFormState.getPasswordError()));
+                }
+            });
 
 //            loginViewModel.getLoginResult().observe(this, new Observer<SignResult>() {
 //                @Override
@@ -143,8 +138,8 @@ public class LoginActivity extends AppCompatActivity {
                             passwordEditText.getText().toString());
                 }
             };
-//            emailEditText.addTextChangedListener(afterTextChangedListener);
-//            passwordEditText.addTextChangedListener(afterTextChangedListener);
+            emailEditText.addTextChangedListener(afterTextChangedListener);
+            passwordEditText.addTextChangedListener(afterTextChangedListener);
 //            passwordEditText.setOnEditorActionListener((v, actionId, event) -> {
 //                if (actionId == EditorInfo.IME_ACTION_DONE) {
 ////                        loginViewModel.login(emailEditText.getText().toString(),
@@ -165,9 +160,21 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onStart() {
             super.onStart();
-            // Bind to the service.
-            bindService(new Intent(this, SocketManager.class), mConnection,
+            bindService(new Intent(this, SocketService.class), mConnection,
                     Context.BIND_AUTO_CREATE);
+            // Bind to the service.
+            if(SharedPreferencesManager.getInstance().isUserLoggedIn()){
+                //TODO: go to main activity
+                //Send the user's data to the server
+                User user = SharedPreferencesManager.getInstance().getUserData();
+                Message msg = Message.obtain(null, SocketService.SIGN_IN, user);
+                try {
+                    mService.send(msg);
+                } catch (RemoteException e) {
+                    SharedPreferencesManager.getInstance().deleteUserData();
+                    e.printStackTrace();
+                }
+            }
         }
 
         @Override

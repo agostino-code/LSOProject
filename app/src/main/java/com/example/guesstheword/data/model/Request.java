@@ -14,7 +14,9 @@ public class Request {
     public JSONData getObject() { return data; }
 //    public void setObject(JSONData value) { this.data = value; }
 
-    public String toJson(){
+    @NotNull
+    @Override
+    public String toString(){
         // Creare un oggetto JSON
         JSONObject jsonObject = new JSONObject();
 
