@@ -1,4 +1,4 @@
-package com.example.guesstheword.ui.game;
+package com.example.guesstheword.view.game;
 
 import android.graphics.Color;
 import androidx.annotation.NonNull;

@@ -1,4 +1,4 @@
-package com.example.guesstheword.ui.login;
+package com.example.guesstheword.view.login;
 
 import androidx.annotation.Nullable;
 

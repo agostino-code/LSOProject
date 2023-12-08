@@ -1,8 +1,7 @@
-package com.example.guesstheword.ui.menu;
+package com.example.guesstheword.view.menu;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.guesstheword.databinding.ActivityFindGameBinding;
 
 public class FindGameActivity extends AppCompatActivity {
 

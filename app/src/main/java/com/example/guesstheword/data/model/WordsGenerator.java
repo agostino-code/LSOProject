@@ -4,7 +4,7 @@ import android.graphics.Color;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.example.guesstheword.ui.game.MessageNotificationView;
+import com.example.guesstheword.view.game.MessageNotificationView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

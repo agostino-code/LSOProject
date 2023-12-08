@@ -1,4 +1,4 @@
-package com.example.guesstheword.server;
+package com.example.guesstheword.service;
 
 import android.os.Handler;
 import android.os.Message;
@@ -19,11 +19,18 @@ public class TSocket extends Thread{
         this.handler = handler;
     }
 
+    // Costanti
+    public static final int SOCKET_CONNECTED = 0;
+    public static final int SOCKET_DISCONNECTED = 1;
+    public static final int SOCKET_CONNECTION_ERROR = 2;
+    public static final int SOCKET_RESPONSE = 3;
+
     @Override
     public void run() {
         try {
             socket = new Socket();
             socket.connect(new InetSocketAddress("172.17.0.1", 3000), 5000);
+            handler.sendMessage(Message.obtain(handler, SOCKET_CONNECTED));
             outputStream = socket.getOutputStream();
             inputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -32,9 +39,11 @@ public class TSocket extends Thread{
             }
 
         } catch (IOException e) {
+            handler.sendMessage(Message.obtain(handler, SOCKET_CONNECTION_ERROR));
             throw new RuntimeException(e);
         } finally {
             closeSocket();
+            handler.sendMessage(Message.obtain(handler, SOCKET_DISCONNECTED));
         }
     }
 
@@ -62,8 +71,11 @@ public class TSocket extends Thread{
                 int charsRead = inputReader.read(buffer, 0, 1024);
                 String response = new String(buffer, 0, charsRead);
                 if (!response.isEmpty()) {
-                    Message msg = new Message();
-                    msg.obj = response;
+//                    Message msg = new Message();
+//                    msg.obj = response;
+////                    handler.sendMessage(Message.obtain(handler, SOCKET_RESPONSE, msg));
+//                    handler.sendMessage(msg);
+                    Message msg = Message.obtain(handler, SOCKET_RESPONSE, response);
                     handler.sendMessage(msg);
                 }
             } catch (IOException e) {

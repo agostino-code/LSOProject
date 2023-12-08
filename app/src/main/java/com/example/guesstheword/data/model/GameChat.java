@@ -2,9 +2,9 @@ package com.example.guesstheword.data.model;
 
 import android.graphics.Color;
 import androidx.annotation.NonNull;
-import com.example.guesstheword.ui.game.MessageNotificationView;
-import com.example.guesstheword.ui.game.MessageReceivedView;
-import com.example.guesstheword.ui.game.MessageSentView;
+import com.example.guesstheword.view.game.MessageNotificationView;
+import com.example.guesstheword.view.game.MessageReceivedView;
+import com.example.guesstheword.view.game.MessageSentView;
 
 import java.util.LinkedList;
 import java.util.List;

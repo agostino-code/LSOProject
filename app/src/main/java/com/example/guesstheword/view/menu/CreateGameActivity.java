@@ -1,4 +1,4 @@
-package com.example.guesstheword.ui.menu;
+package com.example.guesstheword.view.menu;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;

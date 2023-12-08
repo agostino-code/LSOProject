@@ -1,4 +1,4 @@
-package com.example.guesstheword.ui.game;
+package com.example.guesstheword.view.game;
 
 import android.os.Bundle;
 import android.text.Editable;

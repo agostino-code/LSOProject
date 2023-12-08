@@ -1,24 +1,21 @@
-package com.example.guesstheword.ui.login;
+package com.example.guesstheword.view.login;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.gridlayout.widget.GridLayout;
 import androidx.lifecycle.Observer;
-import com.example.guesstheword.R;
+import com.example.guesstheword.control.Controller;
 import com.example.guesstheword.databinding.ActivityRegistrationBinding;
-import com.example.guesstheword.data.model.User;
-import com.example.guesstheword.ui.menu.MenuActivity;
-import org.json.JSONException;
 
-public class RegistrationActivity extends AppCompatActivity {
+public class RegistrationActivity extends LoginParentActivity {
     private ActivityRegistrationBinding binding;
 
     private GridLayout avatarsGrid;
@@ -80,26 +77,26 @@ public class RegistrationActivity extends AppCompatActivity {
             }
         });
 
-        registrationViewModel.getRegistrationResult().observe(this, new Observer<SignResult>() {
-            @Override
-            public void onChanged(@Nullable SignResult signResult) {
-                if (signResult == null) {
-                    return;
-                }
-
-                loadingProgressBar.setVisibility(View.GONE);
-                if(signResult.getSuccess() != null) {
-                    updateUiWithUser(signResult.getSuccess());
-                    setResult(Activity.RESULT_OK);
-
-                    //Complete and destroy login activity once successful
-                    finish();
-                } else if (signResult.getError() != null) {
-                    showRegistrationFailed(signResult.getError());
-                    showRegistrationFailed(getString(R.string.registration_failed));
-                }
-            }
-        });
+//        registrationViewModel.getRegistrationResult().observe(this, new Observer<SignResult>() {
+//            @Override
+//            public void onChanged(@Nullable SignResult signResult) {
+//                if (signResult == null) {
+//                    return;
+//                }
+//
+//                loadingProgressBar.setVisibility(View.GONE);
+//                if(signResult.getSuccess() != null) {
+//                    updateUiWithUser(signResult.getSuccess());
+//                    setResult(Activity.RESULT_OK);
+//
+//                    //Complete and destroy login activity once successful
+//                    finish();
+//                } else if (signResult.getError() != null) {
+//                    showRegistrationFailed(signResult.getError());
+//                    showRegistrationFailed(getString(R.string.registration_failed));
+//                }
+//            }
+//        });
         TextWatcher afterTextChangedListener = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -112,7 +109,7 @@ public class RegistrationActivity extends AppCompatActivity {
             }
             @Override
             public void afterTextChanged(android.text.Editable s) {
-                registrationViewModel.registrationDataChanged(usernameEditText.getText().toString(),
+                registrationViewModel.isValidSignUpInput(usernameEditText.getText().toString(),
                         emailEditText.getText().toString(), passwordEditText.getText().toString(),
                         repeatPasswordEditText.getText().toString(), mainAvatarImageId);
             }
@@ -127,7 +124,7 @@ public class RegistrationActivity extends AppCompatActivity {
             public void onLayoutChange(View view, int i, int i1,
                                        int i2, int i3, int i4, int i5,
                                        int i6, int i7) {
-                registrationViewModel.registrationDataChanged(usernameEditText.getText().toString(),
+                registrationViewModel.isValidSignUpInput(usernameEditText.getText().toString(),
                         emailEditText.getText().toString(), passwordEditText.getText().toString(),
                         repeatPasswordEditText.getText().toString(), mainAvatarImageId);
             }
@@ -137,9 +134,10 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 loadingProgressBar.setVisibility(View.VISIBLE);
-                registrationViewModel.signUp(usernameEditText.getText().toString(),
-                        emailEditText.getText().toString(), passwordEditText.getText().toString(),
-                        mainAvatarImageId, v.getContext());
+//                registrationViewModel.signUp(usernameEditText.getText().toString(),
+//                        emailEditText.getText().toString(), passwordEditText.getText().toString(),
+//                        mainAvatarImageId, v.getContext());
+                signUp();
             }
         });
 
@@ -152,22 +150,6 @@ public class RegistrationActivity extends AppCompatActivity {
                 avatarsGrid.setVisibility(View.GONE);
             }
         });
-    }
-
-    private void updateUiWithUser(User user) {
-        Intent switchActivities = new Intent(this, MenuActivity.class);
-        try {
-            switchActivities.putExtra("jsonUser", user.toJSONObject().toString());
-        } catch (JSONException e) {
-            showRegistrationFailed(getString(R.string.registration_failed));
-        }
-        String welcome = getString(R.string.welcome) + " " + user.getUsername() + "!";
-        Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
-        startActivity(switchActivities);
-    }
-
-    private void showRegistrationFailed(String errorString) {
-        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
     }
 
     public void showOrToggleImageGrid(View view) {
@@ -234,4 +216,14 @@ public class RegistrationActivity extends AppCompatActivity {
         Intent switchActivities = new Intent(this, LoginActivity.class);
         startActivity(switchActivities);
     }
+
+    private void signUp(){
+        loadingProgressBar.setVisibility(View.VISIBLE);
+        Controller.getInstance().SignUp(emailEditText.getText().toString(),
+                passwordEditText.getText().toString(), usernameEditText.getText().toString(),
+                mainAvatarImageId);
+        updateUiWithUser(Controller.getInstance().getUser());
+    }
+
+
 }

@@ -1,4 +1,4 @@
-package com.example.guesstheword.ui.game;
+package com.example.guesstheword.view.game;
 
 import androidx.annotation.NonNull;
 import com.example.guesstheword.data.model.ChatMessage;

@@ -1,4 +1,4 @@
-package com.example.guesstheword.ui.menu;
+package com.example.guesstheword.view.menu;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,9 +7,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import com.example.guesstheword.control.Controller;
+import com.example.guesstheword.data.SharedPreferencesManager;
 import com.example.guesstheword.data.model.User;
-import com.example.guesstheword.ui.UserView;
-import org.json.JSONException;
+import com.example.guesstheword.view.UserView;
 
 public class MenuActivity extends AppCompatActivity {
 
@@ -22,8 +23,12 @@ public class MenuActivity extends AppCompatActivity {
         ImageView profileImageView = binding.menuProfileImage;
         TextView usernameView = binding.menuProfileName;
 
-        Intent messageIntent = getIntent();
-        User user = new User(messageIntent.getStringExtra("jsonUser"));
+//        Intent messageIntent = getIntent();
+//        User user = new User(messageIntent.getStringExtra("jsonUser"));
+        //TODO: Check if the user is logged in
+        //If the user is logged in, send the user's data to the server
+        //Controller get the user's data from SharedPreferencesManager!!
+        User user= SharedPreferencesManager.getInstance().getUserData();
         UserView mainUser = new UserView(user, this);
         profileImageView.setImageDrawable(mainUser.getAvatarDrawable());
         usernameView.setText(mainUser.getUsername());

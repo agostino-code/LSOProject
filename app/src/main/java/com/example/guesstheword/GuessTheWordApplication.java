@@ -3,6 +3,7 @@ package com.example.guesstheword;
 import android.app.Application;
 import android.content.Context;
 import android.os.StrictMode;
+import com.example.guesstheword.control.Controller;
 
 public class GuessTheWordApplication extends Application {
     private static Context context;

@@ -1,4 +1,4 @@
-package com.example.guesstheword.ui;
+package com.example.guesstheword.view;
 
 import android.graphics.drawable.Drawable;
 import androidx.appcompat.app.AppCompatActivity;

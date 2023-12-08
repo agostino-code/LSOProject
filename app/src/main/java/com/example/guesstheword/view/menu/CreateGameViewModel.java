@@ -1,4 +1,4 @@
-package com.example.guesstheword.ui.menu;
+package com.example.guesstheword.view.menu;
 
 import androidx.lifecycle.ViewModel;
 

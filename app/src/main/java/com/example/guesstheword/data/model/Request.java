@@ -17,15 +17,19 @@ public class Request {
     @NotNull
     @Override
     public String toString(){
-        // Creare un oggetto JSON
+        // Create a JSON object
         JSONObject jsonObject = new JSONObject();
 
-        // Aggiungere i campi al JSON
+        // Add fields to the JSON object
         try {
             jsonObject.put("requestType", getRequestType());
-            jsonObject.put("data", getObject().toJson());
 
-            // Convertire l'oggetto JSON in una stringa
+            // Parse the JSON string back to a JSON object
+            JSONObject jsonData = new JSONObject(getObject().toJson());
+
+            jsonObject.put("data", jsonData);
+
+            // Convert the JSON object to a string
             return jsonObject.toString();
         } catch (JSONException e) {
             throw new RuntimeException(e);

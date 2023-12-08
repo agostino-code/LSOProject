@@ -152,23 +152,15 @@ public class User implements JSONData{
 
         if (email != null) {
             jsonUser.put("email", email);
-        } else {
-            jsonUser.put("email", JSONObject.NULL);
         }
         if (password != null) {
             jsonUser.put("password", password);
-        } else {
-            jsonUser.put("password", JSONObject.NULL);
         }
         if (username != null) {
             jsonUser.put("username", this.username);
-        } else {
-            jsonUser.put("username", JSONObject.NULL);
         }
         if(avatar != AVATAR_NULL) {
             jsonUser.put("avatar", this.avatar);
-        } else {
-            jsonUser.put("avatar", JSONObject.NULL);
         }
 
         return jsonUser;
