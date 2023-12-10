@@ -25,9 +25,9 @@ import com.example.guesstheword.view.game.GameActivity;
 
 public class CreateGameActivity extends AppCompatActivity {
 
-    Controller controller = Controller.getInstance();
+    private Controller controller = Controller.getInstance();
 
-    String roomName = null;
+    private String roomName = null;
 
     private EditText roomNameEditText;
     private Spinner languageSpinner;
