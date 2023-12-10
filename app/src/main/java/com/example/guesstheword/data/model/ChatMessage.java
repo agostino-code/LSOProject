@@ -18,7 +18,7 @@ public abstract class ChatMessage {
     /*
      * Getters
      */
-    protected String getMessage() {
+    public String getMessage() {
         return message;
     }
 }

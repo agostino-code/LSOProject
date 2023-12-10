@@ -13,7 +13,7 @@ public class Controller {
     //Singleton
     private static Controller instance = null;
 
-    private User user = null;
+    private static User user = null;
 
     private Controller() {
         // Private constructor to prevent instantiation
@@ -75,7 +75,7 @@ public void SignUp(String email, String password,String username,int avatar) {
     }
 }
 
-    public User getUser() {
+    public static User getUser() {
         return user;
     }
 

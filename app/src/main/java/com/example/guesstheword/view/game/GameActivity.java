@@ -7,12 +7,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.guesstheword.control.Controller;
+
 /**
  * Actual game window, when the user joins a room it opens this activity
  */
 public class GameActivity extends AppCompatActivity {
 
-    //TODO:
+    private Controller controller = Controller.getInstance();
 
     private EditText editMessage;
     private Button sendButton;

@@ -51,6 +51,21 @@ public class Player implements JSONData {
         points = 0;
     }
 
+    /**
+     * Copy constructor
+     * @param player player to copy
+     */
+    public Player(@NonNull Player player) {
+        state = player.state;
+        points = player.points;
+        user = new User(player.user);
+    }
+
+    /**
+     * Consructor from a JSON string
+     * @param jsonPlayer JSON string
+     * @throws JSONException
+     */
     public Player(String jsonPlayer) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonPlayer);
         if (jsonObject.has("state")) {

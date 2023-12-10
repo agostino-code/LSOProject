@@ -4,18 +4,16 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.guesstheword.R;
+import com.example.guesstheword.data.model.Player;
 import com.example.guesstheword.data.model.User;
 
-/**
- * Class exposing authenticated user details to the UI.
- */
-public class UserView extends User {
+public class PlayerView extends Player {
     private final Context context;
 
-    public UserView(@NonNull User user, @NonNull Context context) {
-        super(user);
+    public PlayerView(@NonNull Player player, @NonNull Context context) {
+        super(player);
         this.context = context;
     }
 
@@ -57,4 +55,5 @@ public class UserView extends User {
                 return context.getResources().getDrawable(android.R.drawable.ic_menu_gallery);
         }
     }
+
 }
