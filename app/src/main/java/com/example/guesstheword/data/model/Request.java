@@ -25,14 +25,14 @@ public class Request {
             jsonObject.put("requestType", getRequestType());
 
             // Parse the JSON string back to a JSON object
-            JSONObject jsonData = new JSONObject(getObject().toJson());
+            JSONObject jsonData = new JSONObject(getObject().toJSON());
 
             jsonObject.put("data", jsonData);
 
             // Convert the JSON object to a string
             return jsonObject.toString();
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); //TODO: ATTENTO, se l'app crasha inspiegabilmente, potrebbe essere colpa di questo
         }
     }
 

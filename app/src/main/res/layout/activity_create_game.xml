@@ -4,6 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".view.menu.CreateGameActivity">
 
     <ImageView
@@ -28,14 +32,38 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/menuTitle"/>
 
+
+    <TextView
+        android:id="@+id/textViewLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/language"
+        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextRoomName" />
+
+
     <!-- Casella di opzioni per la selezione della lingua -->
     <Spinner
         android:id="@+id/spinnerLanguage"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:layout_marginTop="16dp"
         android:entries="@array/languages"
+        android:spinnerMode="dialog"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewLanguage" />
+
+    <TextView
+        android:id="@+id/textViewMaxPlayers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/max_players"
+        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/editTextRoomName" />
 
     <!-- Casella di opzioni per la selezione del numero massimo di giocatori -->
@@ -43,13 +71,13 @@
         android:id="@+id/spinnerMaxPlayers"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:layout_marginTop="16dp"
-        android:entries="@array/player_numbers"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editTextRoomName" />
+        android:entries="@array/max_players"
+        android:spinnerMode="dialog"
+        app:layout_constraintStart_toStartOf="@+id/textViewMaxPlayers"
+        app:layout_constraintTop_toBottomOf="@id/textViewMaxPlayers" />
 
     <ImageView
-        android:id="@+id/createGameButton"
+        android:id="@+id/createGameButtonImageView"
         android:layout_width="@dimen/main_button_width"
         android:layout_height="@dimen/main_button_height"
         android:scaleType="fitXY"
@@ -62,7 +90,7 @@
         app:srcCompat="@drawable/rectangular_button" />
 
     <Button
-        android:id="@+id/CreateGameButton"
+        android:id="@+id/createGameButton"
         android:layout_width="@dimen/main_button_width"
         android:layout_height="@dimen/main_button_height"
         android:text="@string/create_game_button_name"

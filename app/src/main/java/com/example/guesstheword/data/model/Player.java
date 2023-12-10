@@ -2,10 +2,11 @@ package com.example.guesstheword.data.model;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Player {
+public class Player implements JSONData {
     @Nullable
     private PlayerState state;
     private int points;
@@ -48,6 +49,17 @@ public class Player {
         user = new User(username, avatar);
         state = null;
         points = 0;
+    }
+
+    public Player(String jsonPlayer) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonPlayer);
+        if (jsonObject.has("state")) {
+            state = PlayerState.valueOf(jsonObject.getString("state"));
+        } else {
+            state = null;
+        }
+        points = jsonObject.getInt("points");
+        user = new User(jsonObject.getString("user"));
     }
 
     /*
@@ -95,7 +107,7 @@ public class Player {
         return getUsername().equals(other.getUsername());
     }
 
-    public JSONObject toJSON() throws JSONException {
+    public JSONObject toJSONObject() throws JSONException {
         JSONObject jsonPlayer = new JSONObject();
 
         if (state != null) {
@@ -104,8 +116,13 @@ public class Player {
             jsonPlayer.put("state", JSONObject.NULL);
         }
         jsonPlayer.put("points", this.points);
-        jsonPlayer.put("user", this.user.toJSONObject());
+        jsonPlayer.put("user", this.user.toJSON());
 
         return jsonPlayer;
+    }
+
+    @Override
+    public String toJSON() throws JSONException {
+        return this.toJSONObject().toString();
     }
 }

@@ -103,7 +103,8 @@ public class LoginActivity extends LoginParentActivity {
         public void onReceive(Context context, Intent intent) {
             // Handle the connection error here
             // You can show a pop-up, update UI, or perform any other action
-            showConnectionErrorPopup();
+            String message = intent.getStringExtra("msg");
+            showConnectionErrorPopup(message);
         }
     }
 

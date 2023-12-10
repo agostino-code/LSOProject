@@ -2,10 +2,11 @@ package com.example.guesstheword.data.model;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class User implements JSONData{
+public class User implements JSONData {
 
     public static final int AVATAR_NULL = 0;
     public static final int AVATAR_1 = 1;
@@ -52,7 +53,7 @@ public class User implements JSONData{
      * Constructor called to create an incomplete profile of the other Users of a room
      *
      * @param username (this will be used as the User ID, as Primary key)
-     * @param avatar chosen between 16 images (must be a number between 1-16, you can use the MACROS of this class)
+     * @param avatar   chosen between 16 images (must be a number between 1-16, you can use the MACROS of this class)
      */
     public User(@NonNull String username, int avatar) {
         this.username = username;
@@ -63,6 +64,7 @@ public class User implements JSONData{
 
     /**
      * Constructor called for the sign in, used for a temporary istance of this class
+     *
      * @param email    must respect the RFC 5322 email format (unique attribute)
      * @param password at least 5 characters
      */
@@ -78,21 +80,34 @@ public class User implements JSONData{
      *
      * @param jsonUser a JSON string representing a User
      */
-    public User(String jsonUser){
-        try {
-            JSONObject    jsonObject = new JSONObject(jsonUser);
-
-        this.email = jsonObject.getString("email");
-        this.password = jsonObject.getString("password");
-        this.username = jsonObject.getString("username");
-        this.avatar = jsonObject.getInt("avatar");
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+    public User(String jsonUser) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonUser);
+        if (jsonObject.has("email")) {
+            email = jsonObject.getString("email");
+        } else {
+            email = null;
         }
+        if (jsonObject.has("password")) {
+            password = jsonObject.getString("password");
+        } else {
+            password = null;
+        }
+        if (jsonObject.has("username")) {
+            username = jsonObject.getString("username");
+        } else {
+            username = null;
+        }
+        if (jsonObject.has("avatar")) {
+            avatar = jsonObject.getInt("avatar");
+        } else {
+            avatar = AVATAR_NULL;
+        }
+
     }
 
     /**
      * Copy constructor
+     *
      * @param user
      */
     public User(User user) {
@@ -152,22 +167,30 @@ public class User implements JSONData{
 
         if (email != null) {
             jsonUser.put("email", email);
+        } else {
+            jsonUser.put("email", JSONObject.NULL);
         }
         if (password != null) {
             jsonUser.put("password", password);
+        } else {
+            jsonUser.put("password", JSONObject.NULL);
         }
         if (username != null) {
             jsonUser.put("username", this.username);
+        } else {
+            jsonUser.put("username", JSONObject.NULL);
         }
-        if(avatar != AVATAR_NULL) {
+        if (avatar != AVATAR_NULL) {
             jsonUser.put("avatar", this.avatar);
+        } else {
+            jsonUser.put("avatar", JSONObject.NULL);
         }
 
         return jsonUser;
     }
 
     @Override
-    public String toJson() throws JSONException {
+    public String toJSON() throws JSONException {
         return this.toJSONObject().toString();
     }
 }

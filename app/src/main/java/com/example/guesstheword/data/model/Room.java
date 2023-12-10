@@ -1,13 +1,15 @@
 package com.example.guesstheword.data.model;
 
 import androidx.annotation.NonNull;
-import org.json.JSONArray;
+import androidx.annotation.Nullable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import java.util.LinkedList;
 
-public class Room {
+public class Room implements JSONData {
     public final static long CHOOSING_TIME_IN_MILLISECONDS = 30000;
     public final static long TIME_PER_ROUND_IN_MILLISECONDS = 15000;
 
@@ -18,6 +20,7 @@ public class Room {
     private int port;
     private int round;
     private final Language language;
+    @Nullable
     private final LinkedList<Player> players;
     private int indexOfChooser;
 
@@ -70,6 +73,39 @@ public class Room {
         }
         this.players.add(guest);
         numberOfPlayers = this.players.size();
+    }
+
+    /**
+     * Constructor called to create an incomplete room when a player is searching for a room in FindGameActivity
+     */
+    public Room(String name, int numberOfPlayers, int maxNumberOfPlayers, int port, @NonNull Language language) {
+        this.name = name;
+        this.numberOfPlayers = numberOfPlayers;
+        this.maxNumberOfPlayers = maxNumberOfPlayers;
+        this.port = port;
+        this.language = language;
+        players = null;
+    }
+
+    public Room(String jsonRoom) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonRoom);
+        name = jsonObject.getString("name");
+        numberOfPlayers = jsonObject.getInt("numberOfPlayers");
+        maxNumberOfPlayers = jsonObject.getInt("maxNumberOfPlayers");
+        isGaming = jsonObject.getBoolean("isGaming");
+        port = jsonObject.getInt("port");
+        round = jsonObject.getInt("round");
+        language = Language.valueOf(jsonObject.getString("language"));
+        if (jsonObject.get("players") == JSONObject.NULL) {
+            players = null;
+        } else {
+            players = new LinkedList<Player>();
+            JSONArray playersArray = jsonObject.getJSONArray("players");
+            for (int i = 0; i < playersArray.length(); i++) {
+                players.add(new Player(playersArray.getJSONObject(i).toString()));
+            }
+        }
+        indexOfChooser = jsonObject.getInt("indexOfChooser");
     }
 
     /*
@@ -168,7 +204,7 @@ public class Room {
             player.setState(null);
     }
 
-    public JSONObject toJSON() throws JSONException {
+    public JSONObject toJSONObject() throws JSONException {
         JSONObject jsonRoom = new JSONObject();
 
         jsonRoom.put("name", this.name);
@@ -179,14 +215,22 @@ public class Room {
         jsonRoom.put("round", this.round);
         jsonRoom.put("language", this.language.toString()); // TODO: è appropriato per il server questo toString?
 
-        JSONArray playersArray = new JSONArray();
-        for (Player player : this.players) {
-            playersArray.put(player.toJSON());
+        if(this.players == null)
+            jsonRoom.put("players", JSONObject.NULL);
+        else {
+            JSONArray playersArray = new JSONArray();
+            for (Player player : this.players) {
+                playersArray.put(player.toJSON());
+            }
+            jsonRoom.put("players", playersArray);
         }
-        jsonRoom.put("players", playersArray);
         jsonRoom.put("indexOfChooser", this.indexOfChooser);
 
         return jsonRoom;
     }
 
+    @Override
+    public String toJSON() throws JSONException {
+        return this.toJSONObject().toString();
+    }
 }

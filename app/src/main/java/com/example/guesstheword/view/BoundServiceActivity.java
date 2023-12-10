@@ -60,10 +60,10 @@ public abstract class BoundServiceActivity extends AppCompatActivity {
 
     protected abstract Class<?> getServiceClass();
 
-    protected void showConnectionErrorPopup() {
+    protected void showConnectionErrorPopup(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Errore di connessione");
-        builder.setMessage("Errore di connessione al server!");
+        builder.setMessage(message);
         builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

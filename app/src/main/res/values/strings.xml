@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Guess The Word</string>
     <string name="title_description">image showing the title of the main menu of the game</string>
+    <string name="connection_failed">Connection error</string>
 
     <!-- Strings related to login and registration -->
     <string name="prompt_email">Email</string>
@@ -32,14 +33,16 @@
 
     <!-- Strings related to the creation of a new game menu -->
     <string name="prompt_room_name">Name of the room</string>
+    <string name="language">Language:</string>
+    <string name="max_players">Max players:</string>
+    <string name="create_game_failed">Failed to create game</string>
     <string-array name="languages">
-        <item>English</item>
         <item>Italian</item>
+        <item>English</item>
+        <item>Spanish</item>
         <item>German</item>
-        <item>French</item>
     </string-array>
-
-    <string-array name="player_numbers">
+    <string-array name="max_players">
         <item>2</item>
         <item>3</item>
         <item>4</item>
@@ -50,7 +53,9 @@
         <item>9</item>
         <item>10</item>
     </string-array>
-    <string name="connection_failed">Connection error</string>
+
+    <!-- Strings related to the find game menu -->
+    <string name="find_game_title">Select a game</string>
 
 
 </resources>

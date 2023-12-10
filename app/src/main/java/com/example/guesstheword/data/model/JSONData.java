@@ -4,5 +4,5 @@ import org.json.JSONException;
 
 public interface JSONData {
 
-    String toJson() throws JSONException;
+    String toJSON() throws JSONException;
 }

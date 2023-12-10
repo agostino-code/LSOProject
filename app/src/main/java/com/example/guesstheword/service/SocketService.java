@@ -16,6 +16,7 @@ import com.example.guesstheword.data.model.Response;
 import com.example.guesstheword.data.model.User;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
 
 
 public class SocketService extends Service {
@@ -45,11 +46,11 @@ public class SocketService extends Service {
                         break;
                     case TSocket.SOCKET_DISCONNECTED:
                         Toast.makeText(getApplicationContext(), "Connessione al server persa!", Toast.LENGTH_SHORT).show();
-                        showConnectionErrorPopup();
+                        showConnectionErrorPopup("Connessione al server persa!");
                         break;
                     case TSocket.SOCKET_CONNECTION_ERROR:
                         Toast.makeText(getApplicationContext(), "Errore di connessione al server!", Toast.LENGTH_SHORT).show();
-                        showConnectionErrorPopup();
+                        showConnectionErrorPopup("Errore di connessione al server!");
                         break;
                     case TSocket.SOCKET_RESPONSE:
 //                        Toast.makeText(getApplicationContext(), "Messaggio ricevuto dal server!", Toast.LENGTH_SHORT).show();
@@ -64,7 +65,12 @@ public class SocketService extends Service {
                             if(response.getResponseType().equals("SUCCESS")){
                                 switch (lastRequest){
                                     case "SIGN_IN":
-                                        User user = new User(response.getData());
+                                        User user = null;
+                                        try {
+                                            user = new User(response.getData());
+                                        } catch (JSONException e) {
+                                            showConnectionErrorPopup("Errore nella lettura dei dati ricevuti dal server!");
+                                        }
                                         SharedPreferencesManager.getInstance().saveUserData(user);
                                         Toast.makeText(getApplicationContext(), "Login effettuato con successo!", Toast.LENGTH_SHORT).show();
                                         if (ServiceManager.getInstance().getResponseListener() != null) {
@@ -116,8 +122,9 @@ public class SocketService extends Service {
         }
     }
 
-    private void showConnectionErrorPopup() {
+    private void showConnectionErrorPopup(String message) {
         Intent connectionErrorIntent = new Intent("CONNECTION_ERROR");
+        connectionErrorIntent.putExtra("msg", message);
         sendBroadcast(connectionErrorIntent);
     }
 }
