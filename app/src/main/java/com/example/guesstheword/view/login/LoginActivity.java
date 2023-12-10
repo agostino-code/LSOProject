@@ -1,6 +1,9 @@
 package com.example.guesstheword.view.login;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -89,7 +92,20 @@ public class LoginActivity extends LoginParentActivity {
 //                        passwordEditText.getText().toString());
                 signIn();
             });
+
+            ConnectionErrorReceiver connectionErrorReceiver = new ConnectionErrorReceiver();
+            IntentFilter filter = new IntentFilter("CONNECTION_ERROR");
+            registerReceiver(connectionErrorReceiver, filter);
         }
+
+    private class ConnectionErrorReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Handle the connection error here
+            // You can show a pop-up, update UI, or perform any other action
+            showConnectionErrorPopup();
+        }
+    }
 
         @Override
         protected void onStart() {

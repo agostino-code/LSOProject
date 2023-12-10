@@ -2,10 +2,13 @@ package com.example.guesstheword.view;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Messenger;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.guesstheword.control.Controller;
 import com.example.guesstheword.service.ServiceManager;
@@ -56,4 +59,18 @@ public abstract class BoundServiceActivity extends AppCompatActivity {
     }
 
     protected abstract Class<?> getServiceClass();
+
+    protected void showConnectionErrorPopup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Errore di connessione");
+        builder.setMessage("Errore di connessione al server!");
+        builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                 recreate(); //Restart the service
+            }
+        });
+        builder.setCancelable(false); // Prevent the user from dismissing the dialog by clicking outside of it
+        builder.show();
+    }
 }

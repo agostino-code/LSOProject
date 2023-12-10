@@ -9,10 +9,12 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.widget.Toast;
+
 import com.example.guesstheword.data.SharedPreferencesManager;
 import com.example.guesstheword.data.model.Request;
 import com.example.guesstheword.data.model.Response;
 import com.example.guesstheword.data.model.User;
+
 import org.jetbrains.annotations.NotNull;
 
 
@@ -43,9 +45,11 @@ public class SocketService extends Service {
                         break;
                     case TSocket.SOCKET_DISCONNECTED:
                         Toast.makeText(getApplicationContext(), "Connessione al server persa!", Toast.LENGTH_SHORT).show();
+                        showConnectionErrorPopup();
                         break;
                     case TSocket.SOCKET_CONNECTION_ERROR:
                         Toast.makeText(getApplicationContext(), "Errore di connessione al server!", Toast.LENGTH_SHORT).show();
+                        showConnectionErrorPopup();
                         break;
                     case TSocket.SOCKET_RESPONSE:
 //                        Toast.makeText(getApplicationContext(), "Messaggio ricevuto dal server!", Toast.LENGTH_SHORT).show();
@@ -112,7 +116,8 @@ public class SocketService extends Service {
         }
     }
 
-
-
-
+    private void showConnectionErrorPopup() {
+        Intent connectionErrorIntent = new Intent("CONNECTION_ERROR");
+        sendBroadcast(connectionErrorIntent);
+    }
 }

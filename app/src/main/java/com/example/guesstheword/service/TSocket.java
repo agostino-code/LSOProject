@@ -40,7 +40,7 @@ public class TSocket extends Thread{
 
         } catch (IOException e) {
             handler.sendMessage(Message.obtain(handler, SOCKET_CONNECTION_ERROR));
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
         } finally {
             closeSocket();
             handler.sendMessage(Message.obtain(handler, SOCKET_DISCONNECTED));
