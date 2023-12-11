@@ -110,7 +110,7 @@ public class User implements JSONData {
      *
      * @param user
      */
-    public User(User user) {
+    public User(@NonNull User user) {
         this.email = user.email;
         this.password = user.password;
         this.username = user.username;

@@ -3,6 +3,7 @@ package com.example.guesstheword.control;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+
 import com.example.guesstheword.data.SharedPreferencesManager;
 import com.example.guesstheword.data.model.User;
 import com.example.guesstheword.service.ServiceManager;
@@ -13,7 +14,7 @@ public class Controller {
     //Singleton
     private static Controller instance = null;
 
-    private static User user = null;
+    private User user = null;
 
     private Controller() {
         // Private constructor to prevent instantiation
@@ -40,42 +41,44 @@ public class Controller {
         return instance;
     }
 
-    /** Messenger for communicating with the service. */
+    /**
+     * Messenger for communicating with the service.
+     */
 
-public void SignIn(String email, String password) {
-    Messenger mService = ServiceManager.getInstance().getService();
-    boolean bound = ServiceManager.getInstance().isBound();
+    public void SignIn(String email, String password) {
+        Messenger mService = ServiceManager.getInstance().getService();
+        boolean bound = ServiceManager.getInstance().isBound();
 
-    if (!bound) return;
+        if (!bound) return;
 
-    User user = new User(email,password);
-    Message msg = Message.obtain(null, SocketService.SIGN_IN, user);
+        User user = new User(email, password);
+        Message msg = Message.obtain(null, SocketService.SIGN_IN, user);
 
 
-    try {
-        mService.send(msg);
-    } catch (RemoteException e) {
-        e.printStackTrace();
+        try {
+            mService.send(msg);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
-}
 
-//Sign up
-public void SignUp(String email, String password,String username,int avatar) {
-    Messenger mService = ServiceManager.getInstance().getService();
-    boolean bound = ServiceManager.getInstance().isBound();
+    //Sign up
+    public void SignUp(String email, String password, String username, int avatar) {
+        Messenger mService = ServiceManager.getInstance().getService();
+        boolean bound = ServiceManager.getInstance().isBound();
 
-    if (!bound) return;
+        if (!bound) return;
 
-    User user = new User(email, password, username, avatar);
-    Message msg = Message.obtain(null, SocketService.SIGN_UP, user);
-    try {
-        mService.send(msg);
-    } catch (RemoteException e) {
-        e.printStackTrace();
+        user = new User(email, password, username, avatar);
+        Message msg = Message.obtain(null, SocketService.SIGN_UP, user);
+        try {
+            mService.send(msg);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
-}
 
-    public static User getUser() {
+    public User getUser() {
         return user;
     }
 

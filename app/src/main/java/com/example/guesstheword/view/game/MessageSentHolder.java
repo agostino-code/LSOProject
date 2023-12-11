@@ -20,13 +20,13 @@ public class MessageSentHolder extends RecyclerView.ViewHolder {
 
     public MessageSentHolder(@NonNull View itemView) {
         super(itemView);
-        playerAvatarImageView = itemView.findViewById(R.id.MainPlayerAvatarImageView);
-        playerNameTextView = itemView.findViewById(R.id.MainPlayerNameTextView);
+        playerAvatarImageView = itemView.findViewById(R.id.chatMainPlayerAvatarImageView);
+        playerNameTextView = itemView.findViewById(R.id.chatMainPlayerNameTextView);
         messageTextView = itemView.findViewById(R.id.SentMessageTextView);
     }
 
     public void bind(MessageSentView message) {
-        PlayerView player = new PlayerView(new Player(Controller.getUser()), itemView.getContext());
+        PlayerView player = new PlayerView(new Player(Controller.getInstance().getUser()), itemView.getContext());
         playerAvatarImageView.setImageDrawable(player.getAvatarDrawable());
         playerNameTextView.setText(player.getUsername());
         messageTextView.setText(message.getMessage());

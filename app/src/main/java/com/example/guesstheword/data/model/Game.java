@@ -8,21 +8,40 @@ public class Game {
     private final String word;
     private final int pointsForGuesser;
     private final int pointsForChooser;
+
+    /**
+     * Letters of "word" (without repetitions and without spaces) mixed in a random order
+     */
     private StringBuilder mixedLetters;
     private String revealedLetters;
     private String incompleteWord;
     private long initialTime;
 
     /**
-     * @param word chosen by the player
-     * @param mixedLetters
+     * Constructor called when the game has just started
+     * @param wordChosen chosen by the player. (It automatically calculates the mixed letters)
      */
-    public Game(@NonNull String word, @NonNull String mixedLetters) {
-        this.word = word;
-        this.mixedLetters = new StringBuilder(mixedLetters);
+    public Game(@NonNull WordChosen wordChosen) {
+        this.word = wordChosen.getWord();
+        this.mixedLetters = new StringBuilder(wordChosen.getMixedLetters());
         pointsForGuesser = word.length();
         pointsForChooser = Math.max(0, pointsGap - pointsForGuesser);
         revealedLetters = "";
+        incompleteWord = calculateIncompleteWord();
+        initialTime = System.currentTimeMillis();
+    }
+
+    /**
+     * Constructor called when a player enters in a pre-existing game
+     * @param wordChosen chosen by the player. (It automatically calculates the mixed letters)
+     * @param revealedLetters letters that are already revealed
+     */
+    public Game(@NonNull WordChosen wordChosen, String revealedLetters) {
+        this.word = wordChosen.getWord();
+        this.mixedLetters = new StringBuilder(wordChosen.getMixedLetters());
+        pointsForGuesser = word.length();
+        pointsForChooser = Math.max(0, pointsGap - pointsForGuesser);
+        this.revealedLetters = revealedLetters;
         incompleteWord = calculateIncompleteWord();
         initialTime = System.currentTimeMillis();
     }

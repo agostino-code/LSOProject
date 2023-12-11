@@ -139,6 +139,7 @@ public class Room implements JSONData {
         return language;
     }
 
+    @Nullable
     public LinkedList<Player> getPlayers() {
         return players;
     }
@@ -158,6 +159,9 @@ public class Room implements JSONData {
      * this function set the given player as the chooser and all the other players as the guesser
      */
     public void setChooser(String chooserUsername) {
+        if(chooserUsername == null)
+            return;
+
         int i=0;
         for (Player player : players) {
             if (player.getUsername().equals(chooserUsername)) {

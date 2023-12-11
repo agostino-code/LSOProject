@@ -5,18 +5,18 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.guesstheword.R;
 import com.example.guesstheword.control.Controller;
+import com.example.guesstheword.control.GameChatController;
 import com.example.guesstheword.data.model.Language;
 import com.example.guesstheword.data.model.Player;
 import com.example.guesstheword.data.model.Room;
@@ -25,14 +25,13 @@ import com.example.guesstheword.view.game.GameActivity;
 
 public class CreateGameActivity extends AppCompatActivity {
 
-    private Controller controller = Controller.getInstance();
-
     private String roomName = null;
 
     private EditText roomNameEditText;
     private Spinner languageSpinner;
     private Spinner maxPlayersSpinner;
     private Button createGameButton;
+    private ProgressBar progressBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,6 +44,7 @@ public class CreateGameActivity extends AppCompatActivity {
         languageSpinner = findViewById(R.id.spinnerLanguage);
         maxPlayersSpinner = findViewById(R.id.spinnerMaxPlayers);
         roomNameEditText = findViewById(R.id.editTextRoomName);
+        progressBar = binding.createGameLoading;
 
         ArrayAdapter<CharSequence> languagesAdapter = ArrayAdapter.createFromResource(
                 this,
@@ -90,7 +90,7 @@ public class CreateGameActivity extends AppCompatActivity {
         createGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Player host = new Player(controller.getUser());
+                Player host = new Player(Controller.getInstance().getUser());
                 Room room = new Room(roomName, Integer.parseInt(maxPlayersSpinner.getSelectedItem().toString()),
                         getLanguage(languageSpinner.getSelectedItem().toString()), host);
                 sendRoomToServer(room);
@@ -115,20 +115,18 @@ public class CreateGameActivity extends AppCompatActivity {
     }
 
     private void sendRoomToServer(Room room) {
+        progressBar.setVisibility(ProgressBar.VISIBLE);
         //TODO: send room to server
+        progressBar.setVisibility(ProgressBar.GONE);
     }
 
     private void goToGameActivity(Room room) {
+        GameChatController.setInstance(new Player(Controller.getInstance().getUser()), room);
         Intent switchActivities = new Intent(this, GameActivity.class);
-        /*try {
-            switchActivities.putExtra("jsonRoom", room.toJSON().toString());
-        } catch(JSONException exc) {
-            showCreateGameFailed(R.string.create_game_failed);
-        }*/
         startActivity(switchActivities);
     }
 
-    private void showCreateGameFailed(@StringRes Integer errorString) {
+    private void showCreateGameFailed(String errorString) {
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
     }
 }

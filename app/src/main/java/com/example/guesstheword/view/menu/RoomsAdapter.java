@@ -18,7 +18,7 @@ public class RoomsAdapter extends RecyclerView.Adapter<RoomsAdapter.RoomViewHold
     private static List<Room> roomList;
     private static OnItemClickListener onItemClickListener;
 
-    public RoomsAdapter(List<Room> roomList, OnItemClickListener onItemClickListener) {
+    public RoomsAdapter(@NonNull List<Room> roomList, OnItemClickListener onItemClickListener) {
         this.roomList = roomList;
         this.onItemClickListener = onItemClickListener;
     }

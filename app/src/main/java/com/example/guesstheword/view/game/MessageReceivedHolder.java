@@ -18,8 +18,8 @@ public class MessageReceivedHolder extends RecyclerView.ViewHolder {
 
     public MessageReceivedHolder(@NonNull View itemView) {
         super(itemView);
-        playerAvatarImageView = itemView.findViewById(R.id.PlayerAvatarImageView);
-        playerNameTextView = itemView.findViewById(R.id.PlayerNameTextView);
+        playerAvatarImageView = itemView.findViewById(R.id.chatPlayerAvatarImageView);
+        playerNameTextView = itemView.findViewById(R.id.chatPlayerNameTextView);
         messageTextView = itemView.findViewById(R.id.ReceivedMessageTextView);
     }
 

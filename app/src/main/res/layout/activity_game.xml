@@ -12,38 +12,90 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
         android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/game_chat_toolbar"
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:theme="@style/Widget.AppCompat.Toolbar"
-            app:popupTheme="@style/Theme.AppCompat.Light">
+            android:background="?attr/colorPrimary"
+            app:layout_scrollFlags="enterAlways">
+
+            <!-- Back button -->
+            <ImageButton
+                android:id="@+id/gameBackButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:src="?attr/actionModeCloseDrawable"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <!-- Centered text views -->
+                <LinearLayout
+                    android:id="@+id/centerLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:orientation="vertical"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <TextView
+                        android:id="@+id/gameRoomName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:textSize="18sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/incompleteWord"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:textSize="16sp"/>
+                </LinearLayout>
+
+                <!-- Right button to open Bottom Sheet Dialog -->
+                <ImageButton
+                    android:id="@+id/showPlayersButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_menu_more"
+                    android:background="?attr/selectableItemBackground"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="8dp"
+                    android:onClick="showBottomSheetDialog"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/game_chat_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         app:layout_constrainedHeight="true"
-        app:layout_constraintBottom_toTopOf="@+id/text_gchat_indicator"
+        app:layout_constraintBottom_toTopOf="@+id/game_chat_layout_chatbox"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/game_chat_layout_toolbar" />
 
-    <TextView
-        android:id="@+id/text_gchat_indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/view"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <View
-        android:id="@+id/view"
+        android:id="@+id/chat_box_line"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#e0e0e0"
@@ -65,7 +117,7 @@
             android:layout_centerVertical="true"
             android:layout_toStartOf="@+id/game_chat_send_button"
             android:background="@android:color/transparent"
-            android:hint="Enter Message"
+            android:hint="@string/game_chat_message_hint"
             android:inputType="text"
             android:maxLines="6"
             tools:ignore="Autofill" />
@@ -76,9 +128,25 @@
             android:layout_height="48dp"
             android:layout_alignParentEnd="true"
             android:background="?attr/selectableItemBackground"
-            android:text="Send" />
+            android:text="@string/send_string"
+            android:enabled="false"
+            android:onClick="sendMessage"/>
 
     </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/game_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="64dp"
+        android:layout_marginBottom="64dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.3" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

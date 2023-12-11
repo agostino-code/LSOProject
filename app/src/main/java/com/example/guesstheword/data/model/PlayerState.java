@@ -21,4 +21,17 @@ public enum PlayerState {
                 return "null";
         }
     }
+
+    public String toViewString() {
+        switch (this) {
+            case SPECTATOR:
+                return "Spectator";
+            case GUESSER:
+                return "Guesser";
+            case CHOOSER:
+                return "Chooser";
+            default:
+                return "Not playing";
+        }
+    }
 }

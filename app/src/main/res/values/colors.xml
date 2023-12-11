@@ -8,4 +8,5 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="colorTextLink">#FF0080FF</color>
+    <color name="guess_the_word_color">#202737</color>
 </resources>

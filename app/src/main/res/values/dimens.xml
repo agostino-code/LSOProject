@@ -27,5 +27,6 @@
     <!-- dimensions related to the game-->
     <dimen name="font_size">14sp</dimen>
     <dimen name="chat_image_size">48dp</dimen>
+    <dimen name="toolbar_height">56dp</dimen>
 
 </resources>

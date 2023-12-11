@@ -1,7 +1,16 @@
-package com.example.guesstheword.data.model;
+package com.example.guesstheword.control;
 
 import android.graphics.Color;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.example.guesstheword.data.model.ChatMessage;
+import com.example.guesstheword.data.model.Game;
+import com.example.guesstheword.data.model.Player;
+import com.example.guesstheword.data.model.PlayerState;
+import com.example.guesstheword.data.model.Room;
+import com.example.guesstheword.data.model.ServerMessage;
+import com.example.guesstheword.data.model.ServerNotification;
 import com.example.guesstheword.view.game.MessageNotificationView;
 import com.example.guesstheword.view.game.MessageReceivedView;
 import com.example.guesstheword.view.game.MessageSentView;
@@ -9,12 +18,32 @@ import com.example.guesstheword.view.game.MessageSentView;
 import java.util.LinkedList;
 import java.util.List;
 
-public class GameChat {
+public class GameChatController {
+    private static GameChatController instance = null;
+
     private final Player mainPlayer;
     private final Room room;
+    @Nullable
     private Game currentGame;
     private final LinkedList<ChatMessage> chat;
     private long initialTime;
+
+    /**
+     * Called when the user exit the room
+     */
+    public static synchronized void close() {
+        instance = null;
+    }
+
+    /**
+     * @return the instance of the GameChatController
+     */
+    public static synchronized GameChatController getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("GameChatController not initialized");
+        }
+        return instance;
+    }
 
     /**
      * Constructor called when the room is first created
@@ -22,11 +51,23 @@ public class GameChat {
      * @param host Player which created the room
      * @param room the room just created
      */
-    public GameChat(@NonNull Player host, @NonNull Room room) {
+    private GameChatController(@NonNull Player host, @NonNull Room room) {
         this.mainPlayer = host;
         this.room = room;
         currentGame = null;
         chat = new LinkedList<ChatMessage>();
+    }
+
+    /**
+     * It calls the Constructor called when the room is first created
+     *
+     * @param host Player which created the room
+     * @param room the room just created
+     */
+    public static synchronized void setInstance(@NonNull Player host, @NonNull Room room) {
+        if (instance == null) {
+            instance = new GameChatController(host, room);
+        }
     }
 
     /**
@@ -36,11 +77,24 @@ public class GameChat {
      * @param room        the pre-existing room
      * @param currentGame current game played, if exists (can be null)
      */
-    public GameChat(@NonNull Player mainPlayer, @NonNull Room room, Game currentGame) {
+    private GameChatController(@NonNull Player mainPlayer, @NonNull Room room, @Nullable Game currentGame) {
         this.mainPlayer = mainPlayer;
         this.room = room;
         this.currentGame = currentGame;
         chat = new LinkedList<ChatMessage>();
+    }
+
+    /**
+     * It calls the Constructor called when a player enter in a pre-existing room
+     *
+     * @param mainPlayer  Player entered in the room
+     * @param room        the pre-existing room
+     * @param currentGame current game played, if exists (can be null)
+     */
+    public static synchronized void setInstance(@NonNull Player mainPlayer, @NonNull Room room, @Nullable Game currentGame) {
+        if (instance == null) {
+            instance = new GameChatController(mainPlayer, room, currentGame);
+        }
     }
 
     /*
@@ -48,6 +102,32 @@ public class GameChat {
      */
     public List<ChatMessage> getChat() {
         return chat;
+    }
+
+    public String getWordToGuess() {
+        if(currentGame == null)
+            return null;
+        return currentGame.getWord();
+    }
+
+    public Player getMainPlayer() {
+        return mainPlayer;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public String getIncompleteWord() {
+        if(currentGame == null)
+            return null;
+        return currentGame.getIncompleteWord();
+    }
+
+    public LinkedList<Player> getPlayers() {
+        if(room == null)
+            return null;
+        return room.getPlayers();
     }
 
     /**
@@ -61,7 +141,7 @@ public class GameChat {
      * @param message sent by the main player, the user
      * @return the message to send to the server
      */
-    public ServerMessage SendMessage(@NonNull String message) {
+    public ServerMessage sendMessage(@NonNull String message) {
         if (mainPlayer.getState() == PlayerState.CHOOSER)
             throw new IllegalStateException("Chooser can't send messages");
         if (mainPlayer.getState() == PlayerState.SPECTATOR)
@@ -92,7 +172,7 @@ public class GameChat {
      *
      * @param serverMessage sent by the server
      */
-    public void ReceiveMessage(@NonNull ServerMessage serverMessage) {
+    public void receiveMessage(@NonNull ServerMessage serverMessage) {
         if (serverMessage.isGuessed()) {
             Player winner = serverMessage.getSender();
             String notification = winner.getUsername() + " guessed the word! (+ " +
