@@ -29,7 +29,8 @@ public class TSocket extends Thread{
     public void run() {
         try {
             socket = new Socket();
-            socket.connect(new InetSocketAddress("172.17.0.1", 3000), 5000);
+//            socket.connect(new InetSocketAddress("172.17.0.1", 3000), 5000);
+            socket.connect(new InetSocketAddress("192.168.1.178", 3000), 5000);
             handler.sendMessage(Message.obtain(handler, SOCKET_CONNECTED));
             outputStream = socket.getOutputStream();
             inputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));

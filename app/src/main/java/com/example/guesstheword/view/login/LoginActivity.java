@@ -14,7 +14,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import com.example.guesstheword.control.Controller;
 import com.example.guesstheword.databinding.ActivityLoginBinding;
-import com.example.guesstheword.service.ServiceManager;
+
+import java.util.concurrent.CompletableFuture;
+
 
 public class LoginActivity extends LoginParentActivity {
 
@@ -32,7 +34,15 @@ public class LoginActivity extends LoginParentActivity {
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            if(Controller.getInstance().isUserLoggedIn()){
+                CompletableFuture<Boolean> successFuture = Controller.getInstance().SignIn(Controller.getInstance().getUser().getEmail(),
+                        Controller.getInstance().getUser().getPassword());
+                successFuture.thenAccept(success -> {
+                    if(success) updateUiWithUser(Controller.getInstance().getUser());
+                    else Controller.getInstance().SignOut();
+                });
 
+            }
             ActivityLoginBinding binding = ActivityLoginBinding.inflate(getLayoutInflater());
             setContentView(binding.getRoot());
 
@@ -121,20 +131,13 @@ public class LoginActivity extends LoginParentActivity {
 
         //Sign in local
     private void signIn() {
-//        if (!loginViewModel.isValidLoginInput(email, password)) {
-//            return;
-//        }
         loadingProgressBar.setVisibility(View.VISIBLE);
-        Controller.getInstance().SignIn(emailEditText.getText().toString(),
+        CompletableFuture<Boolean> successFuture = Controller.getInstance().SignIn(emailEditText.getText().toString(),
                 passwordEditText.getText().toString());
-        ServiceManager.getInstance().setResponseListener(new ServiceManager.ResponseListener() {
-            @Override
-            public void onResponse(boolean success) {
-                if(success) updateUiWithUser(Controller.getInstance().getUser());
-                else loadingProgressBar.setVisibility(View.GONE);
-            }
+        successFuture.thenAccept(success -> {
+            if(success) updateUiWithUser(Controller.getInstance().getUser());
+            else loadingProgressBar.setVisibility(View.GONE);
         });
-
     }
 
 

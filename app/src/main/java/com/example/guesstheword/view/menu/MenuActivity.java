@@ -6,13 +6,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
-import com.example.guesstheword.control.Controller;
 import com.example.guesstheword.data.SharedPreferencesManager;
 import com.example.guesstheword.data.model.User;
+import com.example.guesstheword.service.SocketService;
+import com.example.guesstheword.view.BoundServiceActivity;
 import com.example.guesstheword.view.UserView;
 
-public class MenuActivity extends AppCompatActivity {
+public class MenuActivity extends BoundServiceActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,5 +48,10 @@ public class MenuActivity extends AppCompatActivity {
 
     public void showErrorMessage(String errorMessage) {
         Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected Class<?> getServiceClass() {
+        return SocketService.class;
     }
 }

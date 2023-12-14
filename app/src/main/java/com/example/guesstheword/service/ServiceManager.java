@@ -1,12 +1,27 @@
 package com.example.guesstheword.service;
 
 import android.os.Messenger;
+import com.example.guesstheword.data.model.Response;
+
+import java.util.concurrent.CompletableFuture;
 
 public class ServiceManager {
     private static ServiceManager instance = null;
     private Messenger mService = null;
     private boolean bound;
 
+    private CompletableFuture<Response> responseFuture;
+
+    public CompletableFuture<Response> getResponseFuture() {
+        responseFuture = new CompletableFuture<>();
+        return responseFuture;
+    }
+
+    public void completeResponseFuture(Response response) {
+        if (responseFuture != null) {
+            responseFuture.complete(response);
+        }
+    }
     private ServiceManager() {
         // Private constructor to prevent instantiation
     }
@@ -34,17 +49,5 @@ public class ServiceManager {
         return bound;
     }
 
-    public interface ResponseListener {
-        void onResponse(boolean success);
-    }
 
-    private ResponseListener responseListener;
-
-    public void setResponseListener(ResponseListener listener) {
-        this.responseListener = listener;
-    }
-
-    public ResponseListener getResponseListener() {
-        return responseListener;
-    }
 }

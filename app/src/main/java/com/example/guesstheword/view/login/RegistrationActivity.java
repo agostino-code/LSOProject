@@ -15,6 +15,8 @@ import androidx.lifecycle.Observer;
 import com.example.guesstheword.control.Controller;
 import com.example.guesstheword.databinding.ActivityRegistrationBinding;
 
+import java.util.concurrent.CompletableFuture;
+
 public class RegistrationActivity extends LoginParentActivity {
     private ActivityRegistrationBinding binding;
 
@@ -219,10 +221,12 @@ public class RegistrationActivity extends LoginParentActivity {
 
     private void signUp(){
         loadingProgressBar.setVisibility(View.VISIBLE);
-        Controller.getInstance().SignUp(emailEditText.getText().toString(),
-                passwordEditText.getText().toString(), usernameEditText.getText().toString(),
-                mainAvatarImageId);
-        updateUiWithUser(Controller.getInstance().getUser());
+        CompletableFuture<Boolean> successFuture = Controller.getInstance().SignUp(emailEditText.getText().toString(),
+                passwordEditText.getText().toString(),usernameEditText.getText().toString(),mainAvatarImageId);
+        successFuture.thenAccept(success -> {
+            if(success) updateUiWithUser(Controller.getInstance().getUser());
+            else loadingProgressBar.setVisibility(View.GONE);
+        });
     }
 
 
