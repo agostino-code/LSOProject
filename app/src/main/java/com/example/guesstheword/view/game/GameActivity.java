@@ -6,32 +6,16 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.guesstheword.R;
-import com.example.guesstheword.control.Controller;
 import com.example.guesstheword.control.GameChatController;
-import com.example.guesstheword.data.model.Game;
-import com.example.guesstheword.data.model.Player;
-import com.example.guesstheword.data.model.Room;
 import com.example.guesstheword.data.model.ServerMessage;
 import com.example.guesstheword.data.model.ServerNotification;
 import com.example.guesstheword.data.model.WhatHappened;
-import com.example.guesstheword.data.model.WordChosen;
 import com.example.guesstheword.view.menu.MenuActivity;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-
-import org.json.JSONException;
 
 /**
  * Actual game window, when the user joins a room it opens this activity
@@ -102,6 +86,7 @@ public class GameActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Exit from the room");
         builder.setMessage("Are you sure you want to exit from the room? You will lose all your points.");
