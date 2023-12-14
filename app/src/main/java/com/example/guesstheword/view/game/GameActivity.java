@@ -123,6 +123,12 @@ public class GameActivity extends AppCompatActivity {
         builder.show();
     }
 
+    @Override
+    public void onDestroy() {
+        GameChatController.close();
+        super.onDestroy();
+    }
+
     public void sendMessage(View view) {
         if(messageToSend.isEmpty())
             return;
