@@ -1,6 +1,9 @@
 package com.example.guesstheword.view.login;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextWatcher;
 import android.view.View;
@@ -109,6 +112,7 @@ public class RegistrationActivity extends LoginParentActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // ignore
             }
+
             @Override
             public void afterTextChanged(android.text.Editable s) {
                 registrationViewModel.isValidSignUpInput(usernameEditText.getText().toString(),
@@ -152,6 +156,7 @@ public class RegistrationActivity extends LoginParentActivity {
                 avatarsGrid.setVisibility(View.GONE);
             }
         });
+
     }
 
     public void showOrToggleImageGrid(View view) {

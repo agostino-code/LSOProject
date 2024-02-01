@@ -1,9 +1,11 @@
 package com.example.guesstheword.view;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Messenger;
@@ -47,6 +49,10 @@ public abstract class BoundServiceActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         bindService(new Intent(this, getServiceClass()), mConnection, Context.BIND_AUTO_CREATE);
+
+        ConnectionErrorReceiver connectionErrorReceiver = new ConnectionErrorReceiver();
+        IntentFilter filter = new IntentFilter("CONNECTION_ERROR");
+        registerReceiver(connectionErrorReceiver, filter);
     }
 
     @Override
@@ -60,7 +66,17 @@ public abstract class BoundServiceActivity extends AppCompatActivity {
 
     protected abstract Class<?> getServiceClass();
 
-    protected void showConnectionErrorPopup(String message) {
+    private class ConnectionErrorReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Handle the connection error here
+            // You can show a pop-up, update UI, or perform any other action
+            String message = intent.getStringExtra("msg");
+            showConnectionErrorPopup(message);
+        }
+    }
+
+    private void showConnectionErrorPopup(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Errore di connessione");
         builder.setMessage(message);

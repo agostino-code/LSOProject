@@ -12,8 +12,6 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.guesstheword.R;
 import com.example.guesstheword.control.Controller;
 import com.example.guesstheword.control.GameChatController;
@@ -21,10 +19,11 @@ import com.example.guesstheword.data.model.Language;
 import com.example.guesstheword.data.model.Player;
 import com.example.guesstheword.data.model.Room;
 import com.example.guesstheword.databinding.ActivityCreateGameBinding;
+import com.example.guesstheword.service.SocketService;
+import com.example.guesstheword.view.BoundServiceActivity;
 import com.example.guesstheword.view.game.GameActivity;
 
-public class CreateGameActivity extends AppCompatActivity {
-
+public class CreateGameActivity extends BoundServiceActivity {
     private String roomName = null;
 
     private EditText roomNameEditText;
@@ -32,6 +31,11 @@ public class CreateGameActivity extends AppCompatActivity {
     private Spinner maxPlayersSpinner;
     private Button createGameButton;
     private ProgressBar progressBar;
+
+    @Override
+    protected Class<?> getServiceClass() {
+        return SocketService.class;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.example.guesstheword.data.SharedPreferencesManager;
 import com.example.guesstheword.data.model.User;
 import com.example.guesstheword.service.SocketService;
@@ -23,14 +24,13 @@ public class MenuActivity extends BoundServiceActivity {
         ImageView profileImageView = binding.menuProfileImage;
         TextView usernameView = binding.menuProfileName;
 
-//        Intent messageIntent = getIntent();
-//        User user = new User(messageIntent.getStringExtra("jsonUser"));
         //TODO: Check if the user is logged in
         //If the user is logged in, send the user's data to the server
         //Controller get the user's data from SharedPreferencesManager!!
         User user= SharedPreferencesManager.getInstance().getUserData();
         //Dopodiché dovresti salvarlo nel Controller no? con:
         //Controller.getInstance().setUser(user);
+
         UserView mainUser = new UserView(user, this);
         profileImageView.setImageDrawable(mainUser.getAvatarDrawable());
         usernameView.setText(mainUser.getUsername());

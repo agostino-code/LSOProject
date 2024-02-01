@@ -37,10 +37,8 @@ public class SocketService extends Service {
                         break;
                     case TSocket.SOCKET_DISCONNECTED:
                         Toast.makeText(getApplicationContext(), "Connessione al server persa!", Toast.LENGTH_SHORT).show();
-                        showConnectionErrorPopup("Connessione al server persa!");
                         break;
                     case TSocket.SOCKET_CONNECTION_ERROR:
-                        Toast.makeText(getApplicationContext(), "Errore di connessione al server!", Toast.LENGTH_SHORT).show();
                         showConnectionErrorPopup("Errore di connessione al server!");
                         break;
                     case TSocket.SOCKET_RESPONSE:

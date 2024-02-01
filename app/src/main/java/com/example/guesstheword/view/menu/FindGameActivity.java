@@ -16,17 +16,24 @@ import com.example.guesstheword.data.model.Language;
 import com.example.guesstheword.data.model.Player;
 import com.example.guesstheword.databinding.ActivityFindGameBinding;
 import com.example.guesstheword.data.model.Room;
+import com.example.guesstheword.service.SocketService;
+import com.example.guesstheword.view.BoundServiceActivity;
 import com.example.guesstheword.view.game.GameActivity;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class FindGameActivity extends AppCompatActivity {
+public class FindGameActivity extends BoundServiceActivity {
     private ActivityFindGameBinding binding;
     private ProgressBar progressBar;
     private RecyclerView roomsRecyclerView;
     private RoomsAdapter adapter;
     private ArrayList<Room> rooms;
+
+    @Override
+    protected Class<?> getServiceClass() {
+        return SocketService.class;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -34,11 +34,11 @@ public class LoginActivity extends LoginParentActivity {
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            if(Controller.getInstance().isUserLoggedIn()){
+            if (Controller.getInstance().isUserLoggedIn()) {
                 CompletableFuture<Boolean> successFuture = Controller.getInstance().SignIn(Controller.getInstance().getUser().getEmail(),
                         Controller.getInstance().getUser().getPassword());
                 successFuture.thenAccept(success -> {
-                    if(success) updateUiWithUser(Controller.getInstance().getUser());
+                    if (success) updateUiWithUser(Controller.getInstance().getUser());
                     else Controller.getInstance().SignOut();
                 });
 
@@ -103,20 +103,7 @@ public class LoginActivity extends LoginParentActivity {
                 signIn();
             });
 
-            ConnectionErrorReceiver connectionErrorReceiver = new ConnectionErrorReceiver();
-            IntentFilter filter = new IntentFilter("CONNECTION_ERROR");
-            registerReceiver(connectionErrorReceiver, filter);
         }
-
-    private class ConnectionErrorReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Handle the connection error here
-            // You can show a pop-up, update UI, or perform any other action
-            String message = intent.getStringExtra("msg");
-            showConnectionErrorPopup(message);
-        }
-    }
 
         @Override
         protected void onStart() {

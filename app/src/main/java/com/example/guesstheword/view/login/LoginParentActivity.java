@@ -17,13 +17,8 @@ public class LoginParentActivity extends BoundServiceActivity {
 
     protected void updateUiWithUser(User user) {
         Intent switchActivities = new Intent(this, MenuActivity.class);
-//        try {
-//            switchActivities.putExtra("jsonUser", user.toJSONObject().toString());
-//        } catch (JSONException e) {
-//            showRegistrationFailed(getString(R.string.registration_failed));
-//        }
-//        String welcome = getString(R.string.welcome) + " " + user.getUsername() + "!";
-//        Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
+        String welcome = getString(R.string.welcome) + " " + user.getUsername() + "!";
+        Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
         startActivity(switchActivities);
     }
 }

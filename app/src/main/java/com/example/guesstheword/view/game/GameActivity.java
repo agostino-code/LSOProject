@@ -15,12 +15,14 @@ import com.example.guesstheword.control.GameChatController;
 import com.example.guesstheword.data.model.ServerMessage;
 import com.example.guesstheword.data.model.ServerNotification;
 import com.example.guesstheword.data.model.WhatHappened;
+import com.example.guesstheword.service.SocketService;
+import com.example.guesstheword.view.BoundServiceActivity;
 import com.example.guesstheword.view.menu.MenuActivity;
 
 /**
  * Actual game window, when the user joins a room it opens this activity
  */
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends BoundServiceActivity {
     private GameChatController gameChatController = GameChatController.getInstance();
 
     private String messageToSend;
@@ -34,6 +36,11 @@ public class GameActivity extends AppCompatActivity {
     private RecyclerView chatRecyclerView;
     private MessagesAdapter adapter;
     private ProgressBar progressBar;
+
+    @Override
+    protected Class<?> getServiceClass() {
+        return SocketService.class;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
