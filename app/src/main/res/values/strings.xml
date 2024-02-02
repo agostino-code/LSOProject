@@ -31,6 +31,7 @@
     <!-- Strings related to the game -->
     <string name="game_chat_message_hint">Enter a guess or a message</string>
     <string name="send_string">Send</string>
+    <string name="random_words_title">Choose a word</string>
 
     <!-- Strings related to the creation of a new game menu -->
     <string name="prompt_room_name">Name of the room</string>

@@ -11,6 +11,8 @@ import com.example.guesstheword.data.model.PlayerState;
 import com.example.guesstheword.data.model.Room;
 import com.example.guesstheword.data.model.ServerMessage;
 import com.example.guesstheword.data.model.ServerNotification;
+import com.example.guesstheword.data.model.WhatHappened;
+import com.example.guesstheword.data.model.WordChosen;
 import com.example.guesstheword.view.game.MessageNotificationView;
 import com.example.guesstheword.view.game.MessageReceivedView;
 import com.example.guesstheword.view.game.MessageSentView;
@@ -130,6 +132,12 @@ public class GameChatController {
         return room.getPlayers();
     }
 
+    public int getNumberOfPlayers() {
+        if(room == null)
+            return 0;
+        return room.getNumberOfPlayers();
+    }
+
     /**
      * This function must be called every time the main player (the user) send a message
      * in chat.
@@ -200,16 +208,26 @@ public class GameChatController {
         room.setIsInGame(false);
         room.resetStateOfAllPlayers();
         currentGame = null;
-        if (room.getNumberOfPlayers() > 1) {
-            startChoosingPeriod();
-        }
+        //TODO: do a request to the server for the next chooser.
+        //if (room.getNumberOfPlayers() > 1) {
+        //    startChoosingPeriod();
+        //}
     }
 
 
-    private void startChoosingPeriod() {
+    /**
+     * This function is called right after the server picks a Chooser.
+     * It sets the chooser in the room and adds a notification in the chat.
+     */
+    public void startChoosingPeriod(String chooser) {
         initialTime = System.currentTimeMillis();
-        //TODO: do a request to the server for the next chooser
-        //if (mainPlayer.equals(room.getChooser())) 
+        room.setChooser(chooser);
+        String notification = "A new game is starting! wait until " + chooser + " chooses a word";
+        chat.add(new MessageNotificationView(notification, Color.YELLOW));
+        if (mainPlayer.equals(room.getChooser()))
+            mainPlayer.setState(PlayerState.CHOOSER);
+        else
+            mainPlayer.setState(PlayerState.GUESSER);
     }
 
     /**
@@ -227,12 +245,13 @@ public class GameChatController {
     public void manageServerNotification(ServerNotification serverNotification) {
         switch (serverNotification.getWhatHappened()) {
             case JOINED:
-                if (room.getNumberOfPlayers() == 2)
-                    initialTime = System.currentTimeMillis();
+                chat.add(new MessageNotificationView(serverNotification));
                 if (room.isGaming())
                     serverNotification.getPlayer().setState(PlayerState.SPECTATOR);
                 room.addPlayer(serverNotification.getPlayer());
-                chat.add(new MessageNotificationView(serverNotification));
+                //TODO: do a request to the server for the next chooser.
+                //if (room.getNumberOfPlayers() == 2)
+                    //startChoosingPeriod();
                 break;
             case LEFT:
                 room.removePlayer(serverNotification.getPlayer());
@@ -241,6 +260,7 @@ public class GameChatController {
         }
     }
 
+    /*
     public void updateGame() {
         if (room.isGaming()) {
             if (currentGame.isRoundFinished(Room.TIME_PER_ROUND_IN_MILLISECONDS)) {
@@ -263,6 +283,7 @@ public class GameChatController {
             }
         }
     }
+    */
 
     /**
      * @param choosingTime in milliseconds
@@ -274,12 +295,18 @@ public class GameChatController {
         return timePassed >= choosingTime;
     }
 
-    private void startGame() {
-
+    public void startGame(WordChosen wordChosen) {
+        currentGame = new Game(wordChosen);
+        room.setIsInGame(true);
+        String notification = "Word chosen! The word to guess is " + currentGame.getIncompleteWord();
+        chat.add(new MessageNotificationView(notification, Color.YELLOW));
     }
 
     /**
-     * TODO: This function is called when a player exit the game. It must send a ServerNotification
-     * to all the other players
+     * This function is called when the main player exit the game.
+     * You must send the ServerNotification returned by this method to all the other players
      */
+    public ServerNotification generateExitNotification() {
+        return new ServerNotification(mainPlayer, WhatHappened.LEFT);
+    }
 }

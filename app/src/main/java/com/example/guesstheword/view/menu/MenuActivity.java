@@ -28,8 +28,6 @@ public class MenuActivity extends BoundServiceActivity {
         //If the user is logged in, send the user's data to the server
         //Controller get the user's data from SharedPreferencesManager!!
         User user= SharedPreferencesManager.getInstance().getUserData();
-        //Dopodiché dovresti salvarlo nel Controller no? con:
-        //Controller.getInstance().setUser(user);
 
         UserView mainUser = new UserView(user, this);
         profileImageView.setImageDrawable(mainUser.getAvatarDrawable());

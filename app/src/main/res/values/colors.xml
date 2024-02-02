@@ -8,5 +8,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="colorTextLink">#FF0080FF</color>
+
+    <!-- game them colors -->
     <color name="guess_the_word_color">#202737</color>
+    <color name="guess_the_word_orange">#FFF59C0B</color>
+    <color name="guess_the_word_green">#FF14B782</color>
 </resources>
