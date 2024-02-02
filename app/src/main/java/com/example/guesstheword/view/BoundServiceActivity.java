@@ -7,13 +7,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Messenger;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.guesstheword.control.Controller;
 import com.example.guesstheword.service.ServiceManager;
+import com.example.guesstheword.service.SocketService;
+import com.example.guesstheword.view.login.LoginActivity;
 
 public abstract class BoundServiceActivity extends AppCompatActivity {
 
@@ -45,6 +49,7 @@ public abstract class BoundServiceActivity extends AppCompatActivity {
         }
     };
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onStart() {
         super.onStart();
@@ -52,7 +57,7 @@ public abstract class BoundServiceActivity extends AppCompatActivity {
 
         ConnectionErrorReceiver connectionErrorReceiver = new ConnectionErrorReceiver();
         IntentFilter filter = new IntentFilter("CONNECTION_ERROR");
-        registerReceiver(connectionErrorReceiver, filter);
+        registerReceiver(connectionErrorReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
     }
 
     @Override
@@ -83,7 +88,12 @@ public abstract class BoundServiceActivity extends AppCompatActivity {
         builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                 recreate(); //Restart the service
+                //cLOSE THE SERVICE
+                stopService(new Intent(BoundServiceActivity.this, getServiceClass()));
+                //GO TO LOGIN ACTIVITY
+                Intent intent = new Intent(BoundServiceActivity.this, LoginActivity.class);
+                startActivity(intent);
+                recreate();
             }
         });
         builder.setCancelable(false); // Prevent the user from dismissing the dialog by clicking outside of it

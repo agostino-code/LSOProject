@@ -13,10 +13,21 @@ public class TSocket extends Thread{
     private BufferedReader inputReader;
 
     private Handler handler;
+    int port;
 
-    // Costruttore
-    public TSocket(Handler handler) {
+    /**
+     * Costruttore chiamato per SocketService
+     * @param handler
+     */
+
+    /**
+     * Costruttore chiamato per RoomSocketService
+     * @param handler
+     * @param port
+     */
+    public TSocket(Handler handler, int port) {
         this.handler = handler;
+        this.port = port;
     }
 
     // Costanti
@@ -30,13 +41,15 @@ public class TSocket extends Thread{
         try {
             socket = new Socket();
 //            socket.connect(new InetSocketAddress("172.17.0.1", 3000), 5000);
-            socket.connect(new InetSocketAddress("192.168.1.178", 3000), 5000);
+            socket.connect(new InetSocketAddress("192.168.37.243", port), 5000);
             handler.sendMessage(Message.obtain(handler, SOCKET_CONNECTED));
             outputStream = socket.getOutputStream();
             inputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             while (true) {
-                readResponse();
+                if (!socket.isClosed() && socket.isBound()) {
+                    readResponse();
+                }
             }
 
         } catch (IOException e) {

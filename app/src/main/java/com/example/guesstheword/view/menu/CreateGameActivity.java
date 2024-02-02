@@ -1,5 +1,7 @@
 package com.example.guesstheword.view.menu;
 
+import static com.example.guesstheword.GuessTheWordApplication.getAppContext;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -19,11 +21,14 @@ import com.example.guesstheword.data.model.Language;
 import com.example.guesstheword.data.model.Player;
 import com.example.guesstheword.data.model.Room;
 import com.example.guesstheword.databinding.ActivityCreateGameBinding;
+import com.example.guesstheword.service.ServiceManager;
 import com.example.guesstheword.service.SocketService;
 import com.example.guesstheword.view.BoundServiceActivity;
 import com.example.guesstheword.view.game.GameActivity;
 
-public class CreateGameActivity extends BoundServiceActivity {
+import java.util.concurrent.CompletableFuture;
+
+public class CreateGameActivity extends BoundServiceActivity{
     private String roomName = null;
 
     private EditText roomNameEditText;
@@ -31,6 +36,8 @@ public class CreateGameActivity extends BoundServiceActivity {
     private Spinner maxPlayersSpinner;
     private Button createGameButton;
     private ProgressBar progressBar;
+
+    Intent serviceIntent;
 
     @Override
     protected Class<?> getServiceClass() {
@@ -94,43 +101,41 @@ public class CreateGameActivity extends BoundServiceActivity {
         createGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Player host = new Player(Controller.getInstance().getUser());
-                Room room = new Room(roomName, Integer.parseInt(maxPlayersSpinner.getSelectedItem().toString()),
-                        getLanguage(languageSpinner.getSelectedItem().toString()), host);
-                sendRoomToServer(room);
-                goToGameActivity(room);
+                progressBar.setVisibility(ProgressBar.VISIBLE);
+
+                //send room to server and creates the GameChatController
+                CompletableFuture<Boolean> successFuture = Controller.getInstance().createRoom(roomName,
+                        Integer.parseInt(maxPlayersSpinner.getSelectedItem().toString()),
+                        languageSpinner.getSelectedItem().toString());
+                successFuture.thenAccept(success -> {
+                    if (success) {
+                        startRoomSocket(GameChatController.getInstance().getRoom());
+                        goToGameActivity();
+                        Toast.makeText(getAppContext(), "Stanza creata con successo!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Error creating the room", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                progressBar.setVisibility(ProgressBar.GONE);
             }
         });
     }
 
-    private Language getLanguage(String language) {
-        switch (language) {
-            case "Italian":
-                return Language.ITALIAN;
-            case "English":
-                return Language.ENGLISH;
-            case "Spanish":
-                return Language.SPANISH;
-            case "German":
-                return Language.GERMAN;
-            default:
-                return Language.ENGLISH;
-        }
-    }
-
     private void sendRoomToServer(Room room) {
-        progressBar.setVisibility(ProgressBar.VISIBLE);
+
         //TODO: send room to server
         progressBar.setVisibility(ProgressBar.GONE);
     }
 
-    private void goToGameActivity(Room room) {
-        GameChatController.setInstance(new Player(Controller.getInstance().getUser()), room);
-        Intent switchActivities = new Intent(this, GameActivity.class);
-        startActivity(switchActivities);
+    private void startRoomSocket(Room room) {
+        serviceIntent = new Intent(this, SocketService.class);
+        serviceIntent.putExtra(SocketService.EXTRA_PORT, room.getPort()); // replace 3000 with your desired port
+        startService(serviceIntent);
     }
 
-    private void showCreateGameFailed(String errorString) {
-        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
+    private void goToGameActivity() {
+        Intent switchActivities = new Intent(this, GameActivity.class);
+        startActivity(switchActivities);
     }
 }

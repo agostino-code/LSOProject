@@ -1,9 +1,6 @@
 package com.example.guesstheword.view.login;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextWatcher;
 import android.view.View;
@@ -11,11 +8,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.gridlayout.widget.GridLayout;
 import androidx.lifecycle.Observer;
+
 import com.example.guesstheword.control.Controller;
+import com.example.guesstheword.data.SharedPreferencesManager;
+import com.example.guesstheword.data.model.User;
 import com.example.guesstheword.databinding.ActivityRegistrationBinding;
 
 import java.util.concurrent.CompletableFuture;
@@ -225,6 +226,12 @@ public class RegistrationActivity extends LoginParentActivity {
     }
 
     private void signUp(){
+        /*User user = new User(emailEditText.getText().toString(),
+                passwordEditText.getText().toString(),usernameEditText.getText().toString(),mainAvatarImageId);
+        Controller.getInstance().setUser(user);
+        SharedPreferencesManager.getInstance().saveUserData(user);
+        updateUiWithUser(Controller.getInstance().getUser());*/
+
         loadingProgressBar.setVisibility(View.VISIBLE);
         CompletableFuture<Boolean> successFuture = Controller.getInstance().SignUp(emailEditText.getText().toString(),
                 passwordEditText.getText().toString(),usernameEditText.getText().toString(),mainAvatarImageId);

@@ -2,7 +2,7 @@ package com.example.guesstheword.data.model;
 
 import androidx.annotation.NonNull;
 
-public enum PlayerState {
+public enum PlayerStatus {
     SPECTATOR,
     GUESSER,
     CHOOSER;

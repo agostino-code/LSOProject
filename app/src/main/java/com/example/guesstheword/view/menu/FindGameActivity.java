@@ -22,6 +22,10 @@ import com.example.guesstheword.view.game.GameActivity;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import static com.example.guesstheword.GuessTheWordApplication.getAppContext;
 
 public class FindGameActivity extends BoundServiceActivity {
     private ActivityFindGameBinding binding;
@@ -29,6 +33,7 @@ public class FindGameActivity extends BoundServiceActivity {
     private RecyclerView roomsRecyclerView;
     private RoomsAdapter adapter;
     private ArrayList<Room> rooms;
+    Intent serviceIntent;
 
     @Override
     protected Class<?> getServiceClass() {
@@ -54,7 +59,7 @@ public class FindGameActivity extends BoundServiceActivity {
                 @Override
                 public void onItemClick(Room room) {
                     if(room == null) {
-                        showFindGameFailed("Error: room not found");
+                        Toast.makeText(getApplicationContext(), "Error: room not found", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -74,25 +79,49 @@ public class FindGameActivity extends BoundServiceActivity {
 
     private ArrayList<Room> retrieveRoomsFromServer() {
         progressBar.setVisibility(ProgressBar.VISIBLE);
-        //TODO: get rooms from server
-        progressBar.setVisibility(ProgressBar.GONE);
+        CompletableFuture<ArrayList<Room>> rooms = Controller.getInstance().findGame();
 
-        ArrayList<Room> test = new ArrayList<Room>(); //stanze fittizie per test, da rimuovere
-        test.add(new Room("Test", 10, 10, 80,  Language.ENGLISH));
-        test.add(new Room("Squadrone burberone", 1, 5, 81, Language.ITALIAN));
-        return test;
+        if(rooms == null) {
+            progressBar.setVisibility(ProgressBar.GONE);
+            return null;
+        }
+
+        ArrayList <Room> roomsList = new ArrayList<>();
+        rooms.thenAccept( future -> {
+            progressBar.setVisibility(ProgressBar.GONE);
+            roomsList.addAll(future);
+        });
+        return roomsList;
     }
 
     private Room retrieveCompleteRoomFromServer(int port) {
         progressBar.setVisibility(ProgressBar.VISIBLE);
-        //TODO: get room from server
+
+        CompletableFuture<Boolean> successFuture = Controller.getInstance().joinRoom(port);
+        successFuture.thenAccept(success -> {
+            if(success) {
+                startRoomSocket(GameChatController.getInstance().getRoom());
+                goToGameActivity();
+                Toast.makeText(getAppContext(), "Entrato nella stanza con successo!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Error entering the room", Toast.LENGTH_SHORT).show();
+            }
+        });
         progressBar.setVisibility(ProgressBar.GONE);
 
+        /*
         LinkedList<Player> players = new LinkedList<Player>(); //giocatori fittizi per test, da rimuovere
         players.add(new Player(null, 0, "Test", 1));
         Room test = new Room("Squadrone burberone", 5, false,
                 81, 5, Language.ITALIAN, players, new Player(Controller.getInstance().getUser()));
-        return test;
+         */
+        return GameChatController.getInstance().getRoom();
+    }
+
+    private void startRoomSocket(Room room) {
+        serviceIntent = new Intent(this, SocketService.class);
+        serviceIntent.putExtra(SocketService.EXTRA_PORT, room.getPort()); // replace 3000 with your desired port
+        startService(serviceIntent);
     }
 
     private Game retrieveCurrentGame(int port) {
@@ -100,10 +129,6 @@ public class FindGameActivity extends BoundServiceActivity {
         //TODO: get current game from server
         progressBar.setVisibility(ProgressBar.GONE);
         return null;
-    }
-
-    private void showFindGameFailed(String errorString) {
-        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
     }
 
     private void goToGameActivity() {

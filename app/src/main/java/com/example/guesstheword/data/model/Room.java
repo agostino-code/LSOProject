@@ -67,7 +67,7 @@ public class Room implements JSONData {
         this.players = players;
         int i = 0;
         for (Player player : players) {
-            if (player.getState() == PlayerState.CHOOSER)
+            if (player.getStatus() == PlayerStatus.CHOOSER)
                 indexOfChooser = i;
             i++;
         }
@@ -155,6 +155,10 @@ public class Room implements JSONData {
         isGaming = inGame;
     }
 
+    public void setPort(int port) {
+        this.port = port;
+    }
+
     /**
      * this function set the given player as the chooser and all the other players as the guesser
      */
@@ -165,11 +169,11 @@ public class Room implements JSONData {
         int i=0;
         for (Player player : players) {
             if (player.getUsername().equals(chooserUsername)) {
-                player.setState(PlayerState.CHOOSER);
+                player.setStatus(PlayerStatus.CHOOSER);
                 indexOfChooser = i;
             }
             else
-                player.setState(PlayerState.GUESSER);
+                player.setStatus(PlayerStatus.GUESSER);
             i++;
         }
     }
@@ -205,7 +209,7 @@ public class Room implements JSONData {
 
     public void resetStateOfAllPlayers() {
         for (Player player : players)
-            player.setState(null);
+            player.setStatus(null);
     }
 
     public JSONObject toJSONObject() throws JSONException {

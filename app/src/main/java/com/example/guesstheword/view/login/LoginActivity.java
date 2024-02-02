@@ -104,7 +104,7 @@ public class LoginActivity extends LoginParentActivity {
             });
 
         }
-
+        /*
         @Override
         protected void onStart() {
             super.onStart();
@@ -115,6 +115,7 @@ public class LoginActivity extends LoginParentActivity {
                 updateUiWithUser(Controller.getInstance().getUser());
             }
         }
+        */
 
         //Sign in local
     private void signIn() {

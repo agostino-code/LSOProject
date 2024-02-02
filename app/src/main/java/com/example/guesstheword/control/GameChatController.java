@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 import com.example.guesstheword.data.model.ChatMessage;
 import com.example.guesstheword.data.model.Game;
 import com.example.guesstheword.data.model.Player;
-import com.example.guesstheword.data.model.PlayerState;
+import com.example.guesstheword.data.model.PlayerStatus;
 import com.example.guesstheword.data.model.Room;
 import com.example.guesstheword.data.model.ServerMessage;
 import com.example.guesstheword.data.model.ServerNotification;
@@ -69,6 +69,7 @@ public class GameChatController {
     public static synchronized void setInstance(@NonNull Player host, @NonNull Room room) {
         if (instance == null) {
             instance = new GameChatController(host, room);
+
         }
     }
 
@@ -150,9 +151,9 @@ public class GameChatController {
      * @return the message to send to the server
      */
     public ServerMessage sendMessage(@NonNull String message) {
-        if (mainPlayer.getState() == PlayerState.CHOOSER)
+        if (mainPlayer.getStatus() == PlayerStatus.CHOOSER)
             throw new IllegalStateException("Chooser can't send messages");
-        if (mainPlayer.getState() == PlayerState.SPECTATOR)
+        if (mainPlayer.getStatus() == PlayerStatus.SPECTATOR)
             throw new IllegalStateException("Spectator can't send messages");
 
         ServerMessage serverMessage;
@@ -197,7 +198,7 @@ public class GameChatController {
      * (the guesser wins) or when nobody guesses the word but the time finishes (the chooser wins)
      */
     private void finishGame(Player winner) {
-        switch (winner.getState()) {
+        switch (winner.getStatus()) {
             case GUESSER:
                 winner.addPoints(currentGame.getPointsForGuesser());
                 break;
@@ -225,9 +226,9 @@ public class GameChatController {
         String notification = "A new game is starting! wait until " + chooser + " chooses a word";
         chat.add(new MessageNotificationView(notification, Color.YELLOW));
         if (mainPlayer.equals(room.getChooser()))
-            mainPlayer.setState(PlayerState.CHOOSER);
+            mainPlayer.setStatus(PlayerStatus.CHOOSER);
         else
-            mainPlayer.setState(PlayerState.GUESSER);
+            mainPlayer.setStatus(PlayerStatus.GUESSER);
     }
 
     /**
@@ -247,7 +248,7 @@ public class GameChatController {
             case JOINED:
                 chat.add(new MessageNotificationView(serverNotification));
                 if (room.isGaming())
-                    serverNotification.getPlayer().setState(PlayerState.SPECTATOR);
+                    serverNotification.getPlayer().setStatus(PlayerStatus.SPECTATOR);
                 room.addPlayer(serverNotification.getPlayer());
                 //TODO: do a request to the server for the next chooser.
                 //if (room.getNumberOfPlayers() == 2)

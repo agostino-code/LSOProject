@@ -41,11 +41,11 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.PlayerVi
         // Bind room data to the ViewHolder
         holder.playerAvatarImageView.setImageDrawable(playerView.getAvatarDrawable());
         holder.playerUserNameTextView.setText(player.getUsername());
-        holder.playerPointsTextView.setText(String.valueOf(player.getPoints()));
-        if(player.getState() == null)
+        holder.playerPointsTextView.setText(String.valueOf(player.getScore()));
+        if(player.getStatus() == null)
             holder.playerStateTextView.setText("Not playing");
         else
-            holder.playerStateTextView.setText(player.getState().toViewString());
+            holder.playerStateTextView.setText(player.getStatus().toViewString());
     }
 
     @Override

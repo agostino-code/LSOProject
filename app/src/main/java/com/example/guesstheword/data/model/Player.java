@@ -8,8 +8,8 @@ import org.json.JSONObject;
 
 public class Player implements JSONData {
     @Nullable
-    private PlayerState state;
-    private int points;
+    private PlayerStatus status;
+    private int score;
     private final User user;
 
     /**
@@ -17,8 +17,8 @@ public class Player implements JSONData {
      */
     public Player(@NonNull User user, boolean isRoomGaming) {
         this.user = user;
-        state = isRoomGaming ? PlayerState.SPECTATOR : null;
-        points = 0;
+        status = isRoomGaming ? PlayerStatus.SPECTATOR : null;
+        score = 0;
     }
 
     /**
@@ -27,17 +27,17 @@ public class Player implements JSONData {
      */
     public Player(@NonNull User user) {
         this.user = user;
-        state = null;
-        points = 0;
+        status = null;
+        score = 0;
     }
 
     /**
      * Constructor called to create the other players of the room
      * @param avatar chosen between 16 images (must be a number between 1-16, you can use the MACROS of the User class)
      */
-    public Player(@Nullable PlayerState state, int points, @NonNull String username, int avatar) {
-        this.state = state;
-        this.points = points;
+    public Player(@Nullable PlayerStatus status, int score, @NonNull String username, int avatar) {
+        this.status = status;
+        this.score = score;
         user = new User(username, avatar);
     }
 
@@ -47,8 +47,8 @@ public class Player implements JSONData {
      */
     public Player(@NonNull String username, int avatar) {
         user = new User(username, avatar);
-        state = null;
-        points = 0;
+        status = null;
+        score = 0;
     }
 
     /**
@@ -56,8 +56,8 @@ public class Player implements JSONData {
      * @param player player to copy
      */
     public Player(@NonNull Player player) {
-        state = player.state;
-        points = player.points;
+        status = player.status;
+        score = player.score;
         user = new User(player.user);
     }
 
@@ -68,40 +68,40 @@ public class Player implements JSONData {
      */
     public Player(String jsonPlayer) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonPlayer);
-        if (jsonObject.has("state")) {
-            state = PlayerState.valueOf(jsonObject.getString("state"));
+        if (jsonObject.has("status")) {
+            status = PlayerStatus.valueOf(jsonObject.getString("status"));
         } else {
-            state = null;
+            status = null;
         }
-        points = jsonObject.getInt("points");
+        score = jsonObject.getInt("score");
         user = new User(jsonObject.getString("user"));
     }
 
     /*
      * Setters
      */
-    public void setState(@Nullable PlayerState state) {
-        this.state = state;
+    public void setStatus(@Nullable PlayerStatus status) {
+        this.status = status;
     }
 
     public void addPoints(int points) {
-        this.points = this.points + points;
+        this.score = this.score + points;
     }
 
     public void resetPoints() {
-        points = 0;
+        score = 0;
     }
 
     /*
      * Getters
      */
     @Nullable
-    public PlayerState getState() {
-        return state;
+    public PlayerStatus getStatus() {
+        return status;
     }
 
-    public int getPoints() {
-        return points;
+    public int getScore() {
+        return score;
     }
 
     public String getUsername() {
@@ -125,12 +125,12 @@ public class Player implements JSONData {
     public JSONObject toJSONObject() throws JSONException {
         JSONObject jsonPlayer = new JSONObject();
 
-        if (state != null) {
-            jsonPlayer.put("state", state.toString());
+        if (status != null) {
+            jsonPlayer.put("status", status.toString());
         } else {
-            jsonPlayer.put("state", JSONObject.NULL);
+            jsonPlayer.put("status", JSONObject.NULL);
         }
-        jsonPlayer.put("points", this.points);
+        jsonPlayer.put("score", this.score);
         jsonPlayer.put("user", this.user.toJSON());
 
         return jsonPlayer;

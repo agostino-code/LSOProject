@@ -5,9 +5,11 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.*;
 import android.widget.Toast;
+
 import com.example.guesstheword.data.model.JSONData;
 import com.example.guesstheword.data.model.Request;
 import com.example.guesstheword.data.model.Response;
+
 import org.jetbrains.annotations.NotNull;
 
 
@@ -16,12 +18,16 @@ public class SocketService extends Service {
     /**
      * Target we publish for clients to send messages to IncomingHandler.
      */
-    Messenger mMessenger;
+    protected Messenger mMessenger;
 
     public static final int SIGN_IN = 0;
     public static final int SIGN_UP = 1;
-
-    static TSocket tSocket;
+    public static final int NEW_ROOM = 2;
+    public static final int LIST_ROOMS = 3;
+    public static final int JOIN_ROOM = 4;
+    public static final String EXTRA_PORT = "com.example.guesstheword.service.EXTRA_PORT";
+    private int port = 3000;
+    protected static TSocket tSocket;
 
     @SuppressLint("HandlerLeak")
     @Override
@@ -50,8 +56,14 @@ public class SocketService extends Service {
                         break;
                 }
             }
-        });
+        }, port);
         tSocket.start();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        port = intent.getIntExtra(EXTRA_PORT, 3000);
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
@@ -67,22 +79,26 @@ public class SocketService extends Service {
         return mMessenger.getBinder();
     }
 
-    static class IncomingHandler extends Handler{
+    static class IncomingHandler extends Handler {
 
         IncomingHandler() {
             super(Looper.getMainLooper());
         }
+
         public String whatToString(int what) {
             switch (what) {
                 case SIGN_IN:
                     return "SIGN_IN";
                 case SIGN_UP:
                     return "SIGN_UP";
-                // Add more cases as needed
+                case NEW_ROOM:
+                    return "NEW_ROOM";
+                // TODO: Add more cases as needed
                 default:
                     return "UNKNOWN";
             }
         }
+
         @Override
         public void handleMessage(Message msg) {
             Request request;
