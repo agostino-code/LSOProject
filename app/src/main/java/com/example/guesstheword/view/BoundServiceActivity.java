@@ -88,12 +88,9 @@ public abstract class BoundServiceActivity extends AppCompatActivity {
         builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //cLOSE THE SERVICE
-                stopService(new Intent(BoundServiceActivity.this, getServiceClass()));
-                //GO TO LOGIN ACTIVITY
                 Intent intent = new Intent(BoundServiceActivity.this, LoginActivity.class);
                 startActivity(intent);
-                recreate();
+                finish();
             }
         });
         builder.setCancelable(false); // Prevent the user from dismissing the dialog by clicking outside of it

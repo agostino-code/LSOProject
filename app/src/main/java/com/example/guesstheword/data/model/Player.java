@@ -5,6 +5,8 @@ import androidx.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Player implements JSONData {
     @Nullable
@@ -118,7 +120,14 @@ public class Player implements JSONData {
     /*
      * Override methods
      */
-    public boolean equals(Player other) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Player other = (Player) obj;
         return getUsername().equals(other.getUsername());
     }
 

@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONException;
 
 public class User implements JSONData {
 
@@ -163,30 +164,18 @@ public class User implements JSONData {
      * @return a JSON string representing the User
      */
     public JSONObject toJSONObject() throws JSONException {
-        JSONObject jsonUser = new JSONObject();
-
+        JSONObject jsonObject = new JSONObject();
         if (email != null) {
-            jsonUser.put("email", email);
-        } else {
-            jsonUser.put("email", JSONObject.NULL);
+            jsonObject.put("email", email);
         }
         if (password != null) {
-            jsonUser.put("password", password);
-        } else {
-            jsonUser.put("password", JSONObject.NULL);
+            jsonObject.put("password", password);
         }
         if (username != null) {
-            jsonUser.put("username", this.username);
-        } else {
-            jsonUser.put("username", JSONObject.NULL);
+            jsonObject.put("username", username);
         }
-        if (avatar != AVATAR_NULL) {
-            jsonUser.put("avatar", this.avatar);
-        } else {
-            jsonUser.put("avatar", JSONObject.NULL);
-        }
-
-        return jsonUser;
+        jsonObject.put("avatar", avatar);
+        return jsonObject;
     }
 
     @Override
