@@ -21,7 +21,7 @@
     <string name="user_not_found">User not found</string>
     <string name="login_failed">Login failed</string>
     <string name="registration_failed">Registration failed</string>
-    <string name="no_account">No account? </string>
+    <string name="no_account">No account?</string>
 
     <!-- Strings related to the home menu -->
     <string name="create_game_button_name">CREATE GAME</string>

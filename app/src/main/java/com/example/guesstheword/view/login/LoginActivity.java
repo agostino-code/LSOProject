@@ -26,11 +26,6 @@ public class LoginActivity extends LoginParentActivity {
     private EditText passwordEditText;
     private ProgressBar loadingProgressBar;
 
-    public void goToRegistrationActivity(View view) {
-        Intent switchActivities = new Intent(this, RegistrationActivity.class);
-        startActivity(switchActivities);
-    }
-
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -126,6 +121,11 @@ public class LoginActivity extends LoginParentActivity {
             if(success) updateUiWithUser(Controller.getInstance().getUser());
             else loadingProgressBar.setVisibility(View.GONE);
         });
+    }
+
+    public void goToRegistrationActivity(View view) {
+        Intent intent = new Intent(this, RegistrationActivity.class);
+        startActivity(intent);
     }
 
 
