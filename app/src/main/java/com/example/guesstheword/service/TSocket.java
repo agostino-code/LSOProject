@@ -43,7 +43,7 @@ public class TSocket extends Thread {
         try {
             socket = new Socket();
             // socket.connect(new InetSocketAddress("172.17.0.1", 3000), 5000);
-            socket.connect(new InetSocketAddress("192.168.1.128", port), 5000);
+            socket.connect(new InetSocketAddress("100.123.3.118", port), 5000);
             handler.sendMessage(Message.obtain(handler, SOCKET_CONNECTED));
             outputStream = socket.getOutputStream();
             inputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
