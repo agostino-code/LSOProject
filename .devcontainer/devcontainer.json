@@ -1,7 +1,9 @@
 {
-	"image": "mcr.microsoft.com/devcontainers/universal:2",
+	// "image": "mcr.microsoft.com/devcontainers/universal:2",
+    "dockerFile": "Dockerfile",
 	"features": {
 		"ghcr.io/devcontainers-contrib/features/tailscale:1": {},
 		"ghcr.io/nordcominc/devcontainer-features/android-sdk:1": {}
+		
 	}
 }
