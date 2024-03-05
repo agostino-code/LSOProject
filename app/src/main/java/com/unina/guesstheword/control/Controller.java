@@ -1,17 +1,22 @@
 package com.unina.guesstheword.control;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.Intent;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.unina.guesstheword.Constants;
 import com.unina.guesstheword.GuessTheWordApplication;
+import com.unina.guesstheword.R;
 import com.unina.guesstheword.data.model.Language;
 import com.unina.guesstheword.data.model.Player;
 import com.unina.guesstheword.data.model.Request;
 import com.unina.guesstheword.data.model.Response;
 import com.unina.guesstheword.data.model.Room;
 import com.unina.guesstheword.data.model.User;
+import com.unina.guesstheword.view.login.LoginActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,16 +42,17 @@ public class Controller {
 
     Controller() {
 
-        if(!connectToServer())
-            noConnectionAlertIrreversible();
+        if (!connectToServer())
+            showNoConnectionAlert();
     }
 
     public boolean connectToServer() {
         socket = new Socket();
-        AtomicBoolean isConnected = new AtomicBoolean(true);
+        AtomicBoolean isConnected = new AtomicBoolean(false);
         CompletableFuture.runAsync(() -> {
             try {
                 socket.connect(new InetSocketAddress(Constants.HOSTNAME, Constants.PORT), 5000);
+                isConnected.set(true);
             } catch (IOException e) {
                 isConnected.set(false);
             }
@@ -54,27 +60,50 @@ public class Controller {
         return isConnected.get();
     }
 
-    public void noConnectionAlertIrreversible() {
-        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(new Runnable() {
+    public void showNoConnectionAlert() {
+        Activity currentActivity = GuessTheWordApplication.getInstance().getCurrentActivity();
+        currentActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                new AlertDialog.Builder(GuessTheWordApplication.getInstance().getCurrentActivity())
+                new AlertDialog.Builder(currentActivity)
                         .setTitle("Connection failed")
-                        .setMessage("The connection to the server has failed. Please check your internet connection and restart the application.")
-                        .setPositiveButton("OK", (dialog, which) -> System.exit(0))
+                        .setMessage("The connection to the server has failed. Please check your internet connection and try again.")
+                        .setPositiveButton("RETRY", (dialog, which) -> {
+                            dialog.dismiss();
+                            ProgressBar progressBar = (ProgressBar) currentActivity.findViewById(R.id.loading);
+                            progressBar.setVisibility(View.VISIBLE);
+                            new Thread(() -> {
+                                currentActivity.runOnUiThread(() -> {
+                                    if (!connectToServer()) {
+                                        progressBar.setVisibility(View.GONE);
+                                        showNoConnectionAlert();
+                                    }
+                                    progressBar.setVisibility(View.GONE);
+                                    //System.exit(0)
+                                });
+                            }).start();
+                        })
                         .show();
             }
         });
     }
 
-    public void noConnectionAlert() {
-        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(new Runnable() {
+    public void showConnectionLostAlert() {
+        Activity currentActivity = GuessTheWordApplication.getInstance().getCurrentActivity();
+        currentActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                new AlertDialog.Builder(GuessTheWordApplication.getInstance().getCurrentActivity())
-                        .setTitle("Connection failed")
+                new AlertDialog.Builder(currentActivity)
+                        .setTitle("Connection lost")
                         .setMessage("The connection to the server has failed. Please check your internet connection and try again.")
-                        .setPositiveButton("OK", null)
+                        .setPositiveButton("OK", (dialog, which) -> {
+                            dialog.dismiss();
+                            currentActivity.runOnUiThread(() -> {
+                                Intent intent = new Intent(currentActivity, LoginActivity.class);
+                                currentActivity.startActivity(intent);
+                            });
+                            showNoConnectionAlert();
+                        })
                         .show();
             }
         });
@@ -95,11 +124,12 @@ public class Controller {
                     isPongReceived.set(true);
                 }
             } catch (Exception e) {
-                noConnectionAlert();
+                showConnectionLostAlert();
             }
         }).join();
-            return isPongReceived.get();
+        return isPongReceived.get();
     }
+
     public static Controller getInstance() {
         if (instance == null) {
             instance = new Controller();
@@ -108,27 +138,32 @@ public class Controller {
     }
 
     public boolean SignIn(String email, String password) {
-        if(!isConnectionAlive()){
-            connectToServer();
+        if (!isConnectionAlive()) {
+            showNoConnectionAlert();
             return false;
-        }else {
-            User user = new User(email, password);
-            Request request = new Request("SIGN_IN", user);
-            Response response = sendRequestAndGetResponse(request);
-            if (response.getResponseType().equals("SUCCESS")) {
-                try {
-                    this.user = new User(response.getData());
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                return true;
-            } else {
-                return false;
+        }
+
+        User user = new User(email, password);
+        Request request = new Request("SIGN_IN", user);
+        Response response = sendRequestAndGetResponse(request);
+        if (response.getResponseType().equals("SUCCESS")) {
+            try {
+                this.user = new User(response.getData());
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
             }
+            return true;
+        } else {
+            return false;
         }
     }
 
     public boolean SignUp(String email, String password, String username, int avatar) {
+        if (!isConnectionAlive()) {
+            showConnectionLostAlert();
+            return false;
+        }
+
         User user = new User(email, password, username, avatar);
         Request request = new Request("SIGN_UP", user);
         Response response = sendRequestAndGetResponse(request);
@@ -145,6 +180,11 @@ public class Controller {
      * and creates the GameChatController
      */
     public boolean newRoom(String roomName, int maxPlayers, String language) {
+        if (!isConnectionAlive()) {
+            showConnectionLostAlert();
+            return false;
+        }
+
         Room room;
         try {
             room = new Room(roomName, maxPlayers, getLanguage(language));
@@ -154,10 +194,10 @@ public class Controller {
         Request request = new Request("NEW_ROOM", room);
         Response response = sendRequestAndGetResponse(request);
         if (response.getResponseType().equals("SUCCESS")) {
-                room.setPort(Integer.parseInt(response.getData()));
+            room.setPort(Integer.parseInt(response.getData()));
             Player player = new Player(user);
             GameChatController.setInstance(player, room);
-                return true;
+            return true;
         } else {
             return false;
         }
@@ -167,6 +207,11 @@ public class Controller {
      * Sends a request to the server to get the list of rooms and returns it
      */
     public ArrayList<Room> listOfRooms() {
+        if (!isConnectionAlive()) {
+            showConnectionLostAlert();
+            return null;
+        }
+
         Request request = new Request("LIST_ROOMS", null);
         Response response = sendRequestAndGetResponse(request);
         if (response.getResponseType().equals("SUCCESS")) {
@@ -185,7 +230,15 @@ public class Controller {
         }
     }
 
+    /**
+     * join the room with the specified port and creates the GameChatController
+     */
     public boolean joinRoom(Room room) {
+        if (!isConnectionAlive()) {
+            showConnectionLostAlert();
+            return false;
+        }
+
         Request request = new Request("JOIN_ROOM", room);
         Response response = sendRequestAndGetResponse(request);
         if (response.getResponseType().equals("SUCCESS")) {
@@ -236,7 +289,7 @@ public class Controller {
                 throw new RuntimeException(e);
             }
         }).join();
-        if(response[0].getResponseType().equals("ERROR")){
+        if (response[0].getResponseType().equals("ERROR")) {
             Toast.makeText(GuessTheWordApplication.getInstance().getCurrentActivity(), response[0].getData(), Toast.LENGTH_SHORT).show();
         }
         return response[0];

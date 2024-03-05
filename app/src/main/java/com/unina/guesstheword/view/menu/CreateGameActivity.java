@@ -44,7 +44,7 @@ public class CreateGameActivity extends Activity {
         languageSpinner = findViewById(R.id.spinnerLanguage);
         maxPlayersSpinner = findViewById(R.id.spinnerMaxPlayers);
         roomNameEditText = findViewById(R.id.editTextRoomName);
-        progressBar = binding.createGameLoading;
+        progressBar = binding.loading;
 
         ArrayAdapter<CharSequence> languagesAdapter = ArrayAdapter.createFromResource(
                 this,
@@ -107,12 +107,6 @@ public class CreateGameActivity extends Activity {
                 progressBar.setVisibility(ProgressBar.GONE);
             }
         });
-    }
-
-    private void sendRoomToServer(Room room) {
-
-        //TODO: send room to server
-        progressBar.setVisibility(ProgressBar.GONE);
     }
 
 //    private void startRoomSocket(Room room) {

@@ -34,7 +34,7 @@ public class FindGameActivity extends Activity {
         setContentView(binding.getRoot());
 
         roomsRecyclerView = binding.roomsRecyclerView;
-        progressBar = binding.findGameLoading;
+        progressBar = binding.loading;
 
         rooms = retrieveRoomsFromServer();
 
