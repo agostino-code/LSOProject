@@ -95,15 +95,8 @@ public class Controller {
             public void run() {
                 new AlertDialog.Builder(currentActivity)
                         .setTitle("Connection lost")
-                        .setMessage("The connection to the server has failed. Please check your internet connection and try again.")
-                        .setPositiveButton("OK", (dialog, which) -> {
-                            dialog.dismiss();
-                            currentActivity.runOnUiThread(() -> {
-                                Intent intent = new Intent(currentActivity, LoginActivity.class);
-                                currentActivity.startActivity(intent);
-                            });
-                            showNoConnectionAlert();
-                        })
+                        .setMessage("If the problem persists please restart the application.")
+                        .setPositiveButton("OK", null)
                         .show();
             }
         });
@@ -124,7 +117,7 @@ public class Controller {
                     isPongReceived.set(true);
                 }
             } catch (Exception e) {
-                showConnectionLostAlert();
+                isPongReceived.set(false);
             }
         }).join();
         return isPongReceived.get();
@@ -139,7 +132,7 @@ public class Controller {
 
     public boolean SignIn(String email, String password) {
         if (!isConnectionAlive()) {
-            showNoConnectionAlert();
+            showConnectionLostAlert();
             return false;
         }
 
