@@ -1,6 +1,5 @@
 package com.unina.guesstheword.view.menu;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ProgressBar;
@@ -16,10 +15,11 @@ import com.unina.guesstheword.data.model.Player;
 import com.unina.guesstheword.databinding.ActivityFindGameBinding;
 import com.unina.guesstheword.data.model.Room;
 import com.unina.guesstheword.view.game.GameActivity;
+import com.unina.guesstheword.view.GeneralActivity;
 
 import java.util.ArrayList;
 
-public class FindGameActivity extends Activity {
+public class FindGameActivity extends GeneralActivity {
     private ActivityFindGameBinding binding;
     private ProgressBar progressBar;
     private RecyclerView roomsRecyclerView;

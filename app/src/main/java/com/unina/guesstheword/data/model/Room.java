@@ -21,7 +21,7 @@ public class Room implements JSONData {
     private int round;
     private final Language language;
     @Nullable
-    private final LinkedList<Player> players;
+    private LinkedList<Player> players;
     private int indexOfChooser;
 
     /**
@@ -105,17 +105,18 @@ public class Room implements JSONData {
         inGame = jsonObject.getBoolean("inGame");
         port = jsonObject.getInt("port");
         round = jsonObject.getInt("round");
-        this.language = Language.valueOf(jsonObject.getString("language"));
-        if (jsonObject.get("players") == JSONObject.NULL) {
-            players = null;
-        } else {
+        language = Language.fromString(jsonObject.getString("language"));
+        try{
+            jsonObject.get("players");
             players = new LinkedList<Player>();
             JSONArray playersArray = jsonObject.getJSONArray("players");
             for (int i = 0; i < playersArray.length(); i++) {
                 players.add(new Player(playersArray.getJSONObject(i).toString()));
             }
+        } catch (JSONException e) {
+            players = null;
         }
-        indexOfChooser = jsonObject.getInt("indexOfChooser");
+//        indexOfChooser = jsonObject.getInt("indexOfChooser");
     }
 
     /*

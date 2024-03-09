@@ -3,41 +3,31 @@ package com.unina.guesstheword.data.model;
 import androidx.annotation.NonNull;
 
 public enum Language {
-    ITALIAN,
-    ENGLISH,
-    SPANISH,
-    GERMAN;
+    ENGLISH("en"),
+    ITALIAN("it"),
 
-    @NonNull
-    @Override
-    public String toString() {
-        switch (this) {
-            case ITALIAN:
-                return "it";
-            case ENGLISH:
-                return "en";
-            case SPANISH:
-                return "es";
-            case GERMAN:
-                return "de";
-            default:
-                return "en";
-        }
+    SPANISH("es"),
+
+    GERMAN("de");
+    // Add other languages as needed
+
+    private String languageCode;
+
+    Language(String languageCode) {
+        this.languageCode = languageCode;
     }
 
-    public String toServerString() {
-        switch (this) {
-            case ITALIAN:
-                return "it";
-            case ENGLISH:
-                return "en";
-            case SPANISH:
-                return "es";
-            case GERMAN:
-                return "de";
-            default:
-                return "en";
+    public String getLanguageCode() {
+        return this.languageCode;
+    }
+
+    public static Language fromString(String languageCode) {
+        for (Language language : Language.values()) {
+            if (language.getLanguageCode().equalsIgnoreCase(languageCode)) {
+                return language;
+            }
         }
+        throw new IllegalArgumentException("No constant with text " + languageCode + " found");
     }
 
     public String toViewString() {

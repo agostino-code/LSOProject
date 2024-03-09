@@ -1,13 +1,10 @@
 package com.unina.guesstheword.control;
 
 import android.graphics.Color;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.unina.guesstheword.Constants;
-import com.unina.guesstheword.GuessTheWordApplication;
 import com.unina.guesstheword.data.model.ChatMessage;
 import com.unina.guesstheword.data.model.Game;
 import com.unina.guesstheword.data.model.Player;
@@ -17,14 +14,11 @@ import com.unina.guesstheword.data.model.ServerMessage;
 import com.unina.guesstheword.data.model.ServerNotification;
 import com.unina.guesstheword.data.model.WhatHappened;
 import com.unina.guesstheword.data.model.WordChosen;
+import com.unina.guesstheword.service.MulticastServer;
 import com.unina.guesstheword.view.game.MessageNotificationView;
 import com.unina.guesstheword.view.game.MessageReceivedView;
 import com.unina.guesstheword.view.game.MessageSentView;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,7 +32,7 @@ public class GameChatController {
     private final LinkedList<ChatMessage> chat;
     private long initialTime;
 
-    private Socket socket;
+    private MulticastServer multicast;
 
     /**
      * Called when the user exit the room
@@ -69,7 +63,7 @@ public class GameChatController {
         this.room = room;
         currentGame = null;
         chat = new LinkedList<ChatMessage>();
-        connectToServer(room.getPort());
+        connectToMulticast();
     }
 
     /**
@@ -81,7 +75,6 @@ public class GameChatController {
     public static synchronized void setInstance(@NonNull Player host, @NonNull Room room) {
         if (instance == null) {
             instance = new GameChatController(host, room);
-
         }
     }
 
@@ -97,34 +90,11 @@ public class GameChatController {
         this.room = room;
         this.currentGame = currentGame;
         chat = new LinkedList<ChatMessage>();
-        connectToServer(room.getPort());
+        connectToMulticast();
     }
 
-    public void connectToServer(int port) {
-        Thread t = new Thread(() -> {
-            socket = new Socket();
-            try {
-                socket.connect(new InetSocketAddress(Constants.HOSTNAME, port), 5000);
-            } catch (SocketTimeoutException e) {
-                Toast.makeText(GuessTheWordApplication.getAppContext(), "Room is not available", Toast.LENGTH_SHORT).show();
-                close();
-            } catch (IOException e) {
-                checkSocketConnection();
-            }
-        });
-        t.start();
-        try {
-            t.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void checkSocketConnection() {
-        if (socket == null || !socket.isConnected()) {
-            Toast.makeText(GuessTheWordApplication.getAppContext(), "Room is not available", Toast.LENGTH_SHORT).show();
-            connectToServer(room.getPort());
-        }
+    public void connectToMulticast() {
+        multicast = new MulticastServer(room.getPort());
     }
 
     /**
@@ -188,9 +158,8 @@ public class GameChatController {
      * 3. otherwise write in chat that the main player won and finishes the round.
      *
      * @param message sent by the main player, the user
-     * @return the message to send to the server
      */
-    public ServerMessage sendMessage(@NonNull String message) {
+    public void sendMessage(@NonNull String message) {
         if (mainPlayer.getStatus() == PlayerStatus.CHOOSER)
             throw new IllegalStateException("Chooser can't send messages");
         if (mainPlayer.getStatus() == PlayerStatus.SPECTATOR)
@@ -198,9 +167,9 @@ public class GameChatController {
 
         ServerMessage serverMessage;
         if (room.isInGame())
-            serverMessage = new ServerMessage(message, currentGame.getWord(), mainPlayer);
+            serverMessage = new ServerMessage(message, currentGame.getWord(), mainPlayer, multicast);
         else
-            serverMessage = new ServerMessage(message, null, mainPlayer);
+            serverMessage = new ServerMessage(message, null, mainPlayer, multicast);
         if (serverMessage.isGuessed()) {
             String notification = mainPlayer.getUsername() + " guessed the word! (+ " +
                     currentGame.getPointsForGuesser() + " points)";
@@ -209,7 +178,6 @@ public class GameChatController {
         } else {
             chat.add(new MessageSentView(serverMessage));
         }
-        return serverMessage;
     }
 
     /**
@@ -349,5 +317,9 @@ public class GameChatController {
      */
     public ServerNotification generateExitNotification() {
         return new ServerNotification(mainPlayer, WhatHappened.LEFT);
+    }
+
+    public MulticastServer getMulticastServer() {
+        return multicast;
     }
 }

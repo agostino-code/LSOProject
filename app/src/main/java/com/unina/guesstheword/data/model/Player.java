@@ -68,13 +68,9 @@ public class Player implements JSONData {
      */
     public Player(String jsonPlayer) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonPlayer);
-        if (jsonObject.has("status")) {
-            status = PlayerStatus.valueOf(jsonObject.getString("status"));
-        } else {
-            status = null;
-        }
+        status = PlayerStatus.fromString(jsonObject.getString("status"));
         score = jsonObject.getInt("score");
-        user = new User(jsonObject.getString("user"));
+        user = new User(jsonObject.getString("username"), jsonObject.getInt("avatar"));
     }
 
     /*

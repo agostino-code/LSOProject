@@ -22,19 +22,4 @@ public class LoginParentActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
         startActivity(switchActivities);
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        GuessTheWordApplication.getInstance().setCurrentActivity(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (GuessTheWordApplication.getInstance().getCurrentActivity() == this) {
-            GuessTheWordApplication.getInstance().setCurrentActivity(null);
-        }
-    }
-
 }

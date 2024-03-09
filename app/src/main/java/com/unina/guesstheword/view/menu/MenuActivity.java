@@ -1,6 +1,5 @@
 package com.unina.guesstheword.view.menu;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -11,8 +10,9 @@ import android.widget.Toast;
 import com.unina.guesstheword.control.Controller;
 import com.unina.guesstheword.data.model.User;
 import com.unina.guesstheword.view.UserView;
+import com.unina.guesstheword.view.GeneralActivity;
 
-public class MenuActivity extends Activity {
+public class MenuActivity extends GeneralActivity {
 
 
     @Override

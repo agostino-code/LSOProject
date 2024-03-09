@@ -1,7 +1,6 @@
 package com.unina.guesstheword.control;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.widget.Toast;
 
 import com.unina.guesstheword.Constants;
@@ -30,13 +29,10 @@ public class Controller {
 
 
     private static Controller instance;
-
-    private static GameChatController gameChatController;
     private Socket socket;
     User user;
 
     Controller() {
-
         if(!connectToServer())
             noConnectionAlertIrreversible();
     }
@@ -46,7 +42,7 @@ public class Controller {
         AtomicBoolean isConnected = new AtomicBoolean(true);
         CompletableFuture.runAsync(() -> {
             try {
-                socket.connect(new InetSocketAddress(Constants.HOSTNAME, Constants.PORT), 5000);
+                socket.connect(new InetSocketAddress(Constants.IP, Constants.PORT), 5000);
             } catch (IOException e) {
                 isConnected.set(false);
             }
@@ -55,29 +51,19 @@ public class Controller {
     }
 
     public void noConnectionAlertIrreversible() {
-        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                new AlertDialog.Builder(GuessTheWordApplication.getInstance().getCurrentActivity())
-                        .setTitle("Connection failed")
-                        .setMessage("The connection to the server has failed. Please check your internet connection and restart the application.")
-                        .setPositiveButton("OK", (dialog, which) -> System.exit(0))
-                        .show();
-            }
-        });
+        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> new AlertDialog.Builder(GuessTheWordApplication.getInstance().getCurrentActivity())
+                .setTitle("Connection failed")
+                .setMessage("The connection to the server has failed. Please check your internet connection and restart the application.")
+                .setPositiveButton("OK", (dialog, which) -> System.exit(0))
+                .show());
     }
 
     public void noConnectionAlert() {
-        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                new AlertDialog.Builder(GuessTheWordApplication.getInstance().getCurrentActivity())
-                        .setTitle("Connection failed")
-                        .setMessage("The connection to the server has failed. Please check your internet connection and try again.")
-                        .setPositiveButton("OK", null)
-                        .show();
-            }
-        });
+        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> new AlertDialog.Builder(GuessTheWordApplication.getInstance().getCurrentActivity())
+                .setTitle("Connection failed")
+                .setMessage("The connection to the server has failed. Please check your internet connection and try again.")
+                .setPositiveButton("OK", null)
+                .show());
     }
 
     public boolean isConnectionAlive() {
@@ -98,7 +84,7 @@ public class Controller {
                 noConnectionAlert();
             }
         }).join();
-            return isPongReceived.get();
+            return !isPongReceived.get();
     }
     public static Controller getInstance() {
         if (instance == null) {
@@ -108,7 +94,7 @@ public class Controller {
     }
 
     public boolean SignIn(String email, String password) {
-        if(!isConnectionAlive()){
+        if(isConnectionAlive()){
             connectToServer();
             return false;
         }else {
@@ -129,37 +115,47 @@ public class Controller {
     }
 
     public boolean SignUp(String email, String password, String username, int avatar) {
-        User user = new User(email, password, username, avatar);
-        Request request = new Request("SIGN_UP", user);
-        Response response = sendRequestAndGetResponse(request);
-        if (response.getResponseType().equals("SUCCESS")) {
-            this.user = user;
-            return true;
-        } else {
+        if(isConnectionAlive()){
+            connectToServer();
             return false;
-        }
-    }
+        }else {
+            User user = new User(email, password, username, avatar);
+            Request request = new Request("SIGN_UP", user);
+            Response response = sendRequestAndGetResponse(request);
+            if (response.getResponseType().equals("SUCCESS")) {
+                this.user = user;
+                return true;
+            } else {
+                return false;
+            }
+
+        }    }
 
     /**
      * Creates the room, sends the room to the server, waits for a response getting the port
      * and creates the GameChatController
      */
     public boolean newRoom(String roomName, int maxPlayers, String language) {
-        Room room;
-        try {
-            room = new Room(roomName, maxPlayers, getLanguage(language));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        Request request = new Request("NEW_ROOM", room);
-        Response response = sendRequestAndGetResponse(request);
-        if (response.getResponseType().equals("SUCCESS")) {
-                room.setPort(Integer.parseInt(response.getData()));
-            Player player = new Player(user);
-            GameChatController.setInstance(player, room);
-                return true;
-        } else {
+        if(isConnectionAlive()){
+            connectToServer();
             return false;
+        }else {
+            Room room;
+            try {
+                room = new Room(roomName, maxPlayers, getLanguage(language));
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            Request request = new Request("NEW_ROOM", room);
+            Response response = sendRequestAndGetResponse(request);
+            if (response.getResponseType().equals("SUCCESS")) {
+                room.setPort(Integer.parseInt(response.getData()));
+                Player player = new Player(user);
+                GameChatController.setInstance(player, room);
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
@@ -167,34 +163,44 @@ public class Controller {
      * Sends a request to the server to get the list of rooms and returns it
      */
     public ArrayList<Room> listOfRooms() {
-        Request request = new Request("LIST_ROOMS", null);
-        Response response = sendRequestAndGetResponse(request);
-        if (response.getResponseType().equals("SUCCESS")) {
-            try {
-                ArrayList<Room> rooms = new ArrayList<>();
-                JSONArray jsonArray = new JSONArray(response.getData());
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    rooms.add(new Room(jsonArray.getString(i))); // replace 0 and Language.ENGLISH with actual values
-                }
-                return rooms;
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
+        if(isConnectionAlive()){
+            connectToServer();
             return null;
+        }else {
+            Request request = new Request("LIST_ROOMS", null);
+            Response response = sendRequestAndGetResponse(request);
+            if (response.getResponseType().equals("SUCCESS")) {
+                try {
+                    ArrayList<Room> rooms = new ArrayList<>();
+                    JSONArray jsonArray = new JSONArray(response.getData());
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        rooms.add(new Room(jsonArray.getString(i))); // replace 0 and Language.ENGLISH with actual values
+                    }
+                    return rooms;
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                return null;
+            }
         }
     }
 
     public boolean joinRoom(Room room) {
-        Request request = new Request("JOIN_ROOM", room);
-        Response response = sendRequestAndGetResponse(request);
-        if (response.getResponseType().equals("SUCCESS")) {
-            room.setPort(Integer.parseInt(response.getData()));
-            Player player = new Player(user);
-            GameChatController.setInstance(player, room);
-            return true;
-        } else {
+        if(isConnectionAlive()){
+            connectToServer();
             return false;
+        }else {
+            Request request = new Request("JOIN_ROOM", room);
+            Response response = sendRequestAndGetResponse(request);
+            if (response.getResponseType().equals("SUCCESS")) {
+                room.setPort(Integer.parseInt(response.getData()));
+                Player player = new Player(user);
+                GameChatController.setInstance(player, room);
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 

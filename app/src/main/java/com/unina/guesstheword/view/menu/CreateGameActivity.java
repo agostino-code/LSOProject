@@ -1,7 +1,8 @@
 package com.unina.guesstheword.view.menu;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,16 +14,15 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.unina.guesstheword.GuessTheWordApplication;
 import com.unina.guesstheword.R;
 import com.unina.guesstheword.control.Controller;
-import com.unina.guesstheword.control.GameChatController;
 import com.unina.guesstheword.data.model.Room;
 import com.unina.guesstheword.databinding.ActivityCreateGameBinding;
 import com.unina.guesstheword.view.game.GameActivity;
+import com.unina.guesstheword.view.GeneralActivity;
 
-import java.util.concurrent.CompletableFuture;
-
-public class CreateGameActivity extends Activity {
+public class CreateGameActivity extends GeneralActivity {
     private String roomName = null;
 
     private EditText roomNameEditText;
@@ -36,7 +36,6 @@ public class CreateGameActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         ActivityCreateGameBinding binding = ActivityCreateGameBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 

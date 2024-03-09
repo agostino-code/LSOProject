@@ -1,6 +1,5 @@
 package com.unina.guesstheword.view.game;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,12 +14,13 @@ import com.unina.guesstheword.control.GameChatController;
 import com.unina.guesstheword.data.model.ServerMessage;
 import com.unina.guesstheword.data.model.ServerNotification;
 import com.unina.guesstheword.data.model.WhatHappened;
+import com.unina.guesstheword.view.GeneralActivity;
 import com.unina.guesstheword.view.menu.MenuActivity;
 
 /**
  * Actual game window, when the user joins a room it opens this activity
  */
-public class GameActivity extends Activity {
+public class GameActivity extends GeneralActivity {
     private GameChatController gameChatController = GameChatController.getInstance();
 
     private String messageToSend;
@@ -118,7 +118,7 @@ public class GameActivity extends Activity {
         if(messageToSend.isEmpty())
             return;
 
-        ServerMessage serverMessage = new ServerMessage(messageToSend, gameChatController.getWordToGuess(), gameChatController.getMainPlayer());
+        ServerMessage serverMessage = new ServerMessage(messageToSend, gameChatController.getWordToGuess(), gameChatController.getMainPlayer(), gameChatController.getMulticastServer());
         sendChatMessageToServer(serverMessage);
 
         gameChatController.sendMessage(messageToSend);
