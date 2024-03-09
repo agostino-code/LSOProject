@@ -47,7 +47,7 @@ public class RegistrationActivity extends LoginParentActivity {
         passwordEditText = binding.registrationPassword;
         repeatPasswordEditText = binding.registrationRepeatPassword;
         signUpButton = binding.signUpButton;
-        loadingProgressBar = binding.registrationLoading;
+        loadingProgressBar = binding.loading;
         mainAvatarImageView = binding.imageViewAvatar;
         avatarsGrid = binding.avatarsGrid;
 

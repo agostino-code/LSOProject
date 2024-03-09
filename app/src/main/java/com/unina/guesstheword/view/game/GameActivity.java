@@ -49,7 +49,7 @@ public class GameActivity extends GeneralActivity {
         editMessage = binding.gameChatEditMessage;
         sendButton = binding.gameChatSendButton;
         chatRecyclerView = binding.gameChatRecycler;
-        progressBar = binding.gameLoading;
+        progressBar = binding.loading;
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override

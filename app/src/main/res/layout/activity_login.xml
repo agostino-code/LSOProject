@@ -87,7 +87,7 @@
         app:layout_constraintHorizontal_chainStyle="packed"/>
 
     <ProgressBar
-        android:id="@+id/login_loading"
+        android:id="@+id/loading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

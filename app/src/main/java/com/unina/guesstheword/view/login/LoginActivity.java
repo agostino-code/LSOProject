@@ -38,7 +38,7 @@ public class LoginActivity extends LoginParentActivity {
         emailEditText = binding.loginEmail;
         passwordEditText = binding.loginPassword;
         Button loginButton = binding.signInButton;
-        loadingProgressBar = binding.loginLoading;
+        loadingProgressBar = binding.loading;
 
         loginViewModel.getLoginFormState().observe(this, loginFormState -> {
             if (loginFormState == null) {
