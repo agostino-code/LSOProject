@@ -52,7 +52,7 @@ public class FindGameActivity extends GeneralActivity {
                     Room completeClickedRoom = retrieveCompleteRoomFromServer(room);
                     Game currentGame = null;
                     if(room.isInGame())
-                        currentGame = retrieveCurrentGame(room.getPort());
+                        currentGame = retrieveCurrentGame(room.getAddress());
                     Player mainPlayer = new Player(Controller.getInstance().getUser(), room.isInGame());
                     GameChatController.setInstance(mainPlayer, completeClickedRoom, currentGame);
                     goToGameActivity();
@@ -103,7 +103,7 @@ public class FindGameActivity extends GeneralActivity {
 //        startService(serviceIntent);
     }
 
-    private Game retrieveCurrentGame(int port) {
+    private Game retrieveCurrentGame(String address) {
         progressBar.setVisibility(ProgressBar.VISIBLE);
         //TODO: get current game from server
         progressBar.setVisibility(ProgressBar.GONE);

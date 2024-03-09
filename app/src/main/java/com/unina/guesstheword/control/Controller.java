@@ -36,7 +36,6 @@ public class Controller {
 
     private static Controller instance;
 
-    private static GameChatController gameChatController;
     private Socket socket;
     User user;
 
@@ -187,7 +186,7 @@ public class Controller {
         Request request = new Request("NEW_ROOM", room);
         Response response = sendRequestAndGetResponse(request);
         if (response.getResponseType().equals("SUCCESS")) {
-            room.setPort(Integer.parseInt(response.getData()));
+            room.setAddress(response.getData());
             Player player = new Player(user);
             GameChatController.setInstance(player, room);
             return true;
@@ -235,7 +234,7 @@ public class Controller {
         Request request = new Request("JOIN_ROOM", room);
         Response response = sendRequestAndGetResponse(request);
         if (response.getResponseType().equals("SUCCESS")) {
-            room.setPort(Integer.parseInt(response.getData()));
+            room.setAddress(response.getData());
             Player player = new Player(user);
             GameChatController.setInstance(player, room);
             return true;

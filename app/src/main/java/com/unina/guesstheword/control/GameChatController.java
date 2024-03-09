@@ -94,7 +94,7 @@ public class GameChatController {
     }
 
     public void connectToMulticast() {
-        multicast = new MulticastServer(room.getPort());
+        multicast = new MulticastServer(room.getAddress());
     }
 
     /**

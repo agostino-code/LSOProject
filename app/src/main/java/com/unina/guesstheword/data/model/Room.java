@@ -17,7 +17,9 @@ public class Room implements JSONData {
     private int numberOfPlayers;
     private final int maxNumberOfPlayers;
     private boolean inGame;
-    private int port;
+//    private int port;
+
+    private String address;
     private int round;
     private final Language language;
     @Nullable
@@ -51,17 +53,19 @@ public class Room implements JSONData {
      * @param name               of the room (can be null, a room is not forced to have a name)
      * @param maxNumberOfPlayers chosen by the host
      * @param IsGaming           Is the pre-existing room already gaming?
-     * @param port               given by the server
+//     * @param port               given by the server
+     * @param address            given by the server
      * @param round              How many games were played?
      * @param language           of the words that will be guessed
      * @param players            List of the players already in game
      * @param guest              player which is entering this room
      */
-    public Room(String name, int maxNumberOfPlayers, boolean IsGaming, int port, int round, @NonNull Language language, @NonNull LinkedList<Player> players, @NonNull Player guest) {
+    public Room(String name, int maxNumberOfPlayers, boolean IsGaming, String address, int round, @NonNull Language language, @NonNull LinkedList<Player> players, @NonNull Player guest) {
         this.name = name;
         this.maxNumberOfPlayers = maxNumberOfPlayers;
         this.inGame = IsGaming;
-        this.port = port;
+//        this.port = port;
+        this.address = address;
         this.round = round;
         this.language = language;
         this.players = players;
@@ -78,11 +82,12 @@ public class Room implements JSONData {
     /**
      * Constructor called to create an incomplete room when a player is searching for a room in FindGameActivity
      */
-    public Room(String name, int numberOfPlayers, int maxNumberOfPlayers, int port, @NonNull Language language) {
+    public Room(String name, int numberOfPlayers, int maxNumberOfPlayers,String address, @NonNull Language language) {
         this.name = name;
         this.numberOfPlayers = numberOfPlayers;
         this.maxNumberOfPlayers = maxNumberOfPlayers;
-        this.port = port;
+        this.address = address;
+//        this.port = port;
         this.language = language;
         players = null;
     }
@@ -103,7 +108,8 @@ public class Room implements JSONData {
         numberOfPlayers = jsonObject.getInt("numberOfPlayers");
         maxNumberOfPlayers = jsonObject.getInt("maxNumberOfPlayers");
         inGame = jsonObject.getBoolean("inGame");
-        port = jsonObject.getInt("port");
+//        port = jsonObject.getInt("port");
+        address =  jsonObject.getString("address");
         round = jsonObject.getInt("round");
         language = Language.fromString(jsonObject.getString("language"));
         try{
@@ -138,10 +144,13 @@ public class Room implements JSONData {
         return inGame;
     }
 
-    public int getPort() {
-        return port;
-    }
+//    public int getPort() {
+//        return port;
+//    }
 
+    public String getAddress() {
+        return address;
+    }
     public int getRound() {
         return round;
     }
@@ -166,10 +175,13 @@ public class Room implements JSONData {
         this.inGame = inGame;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
+//    public void setPort(int port) {
+//        this.port = port;
+//    }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
     /**
      * this function set the given player as the chooser and all the other players as the guesser
      */

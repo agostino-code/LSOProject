@@ -17,13 +17,13 @@ public class MulticastServer{
     protected MulticastSocket socket;
     protected WifiManager.MulticastLock lock;
 
-    protected int port;
+    String address;
     protected byte[] buf = new byte[1024];
 
     private final InetAddress group;
 
-    public MulticastServer(int port) {
-        this.port = port;
+    public MulticastServer(String address) {
+        this.address = address;
         WifiManager wifi = (WifiManager) GuessTheWordApplication.getInstance()
                 .getCurrentActivity().getSystemService(Context.WIFI_SERVICE);
         if (wifi != null){
@@ -31,7 +31,8 @@ public class MulticastServer{
             lock.acquire();
         }
         try {
-            group = InetAddress.getByName(Constants.MULTICAST_IP);
+            //IP FROM SERVE
+            group = InetAddress.getByName(address);
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
@@ -54,7 +55,7 @@ public class MulticastServer{
                 while (true) {
                     DatagramPacket packet = new DatagramPacket(buf,0, buf.length);
                     packet.setAddress(group);
-                    packet.setPort(port);
+                    packet.setPort(Constants.PORT);
                     socket.receive(packet);
                     String received = new String(packet.getData(), 0, packet.getLength());
                     if ("end".equals(received)) {
@@ -73,9 +74,7 @@ public class MulticastServer{
         CompletableFuture.runAsync(() -> {
             try {
                 byte[] buf = message.getBytes();
-                DatagramPacket dp = new DatagramPacket(buf,0,buf.length,group,port);
-                System.out.println("Sending message: " + message);
-                System.out.println("Port: " + port);
+                DatagramPacket dp = new DatagramPacket(buf,0,buf.length,group,Constants.PORT);
                 socket.send(dp);
             } catch (Exception e) {
                 e.printStackTrace();
