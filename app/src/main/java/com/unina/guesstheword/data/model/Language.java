@@ -11,7 +11,7 @@ public enum Language {
     GERMAN("de");
     // Add other languages as needed
 
-    private String languageCode;
+    private final String languageCode;
 
     Language(String languageCode) {
         this.languageCode = languageCode;

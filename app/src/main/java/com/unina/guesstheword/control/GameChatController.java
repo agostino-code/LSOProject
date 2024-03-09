@@ -1,23 +1,14 @@
 package com.unina.guesstheword.control;
 
 import android.graphics.Color;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import com.unina.guesstheword.data.model.ChatMessage;
-import com.unina.guesstheword.data.model.Game;
-import com.unina.guesstheword.data.model.Player;
-import com.unina.guesstheword.data.model.PlayerStatus;
-import com.unina.guesstheword.data.model.Room;
-import com.unina.guesstheword.data.model.ServerMessage;
-import com.unina.guesstheword.data.model.ServerNotification;
-import com.unina.guesstheword.data.model.WhatHappened;
-import com.unina.guesstheword.data.model.WordChosen;
+import com.unina.guesstheword.data.model.*;
 import com.unina.guesstheword.service.MulticastServer;
 import com.unina.guesstheword.view.game.MessageNotificationView;
 import com.unina.guesstheword.view.game.MessageReceivedView;
 import com.unina.guesstheword.view.game.MessageSentView;
+import org.json.JSONException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -61,6 +52,7 @@ public class GameChatController {
     private GameChatController(@NonNull Player host, @NonNull Room room) {
         this.mainPlayer = host;
         this.room = room;
+        this.room.addPlayer(this.mainPlayer);
         currentGame = null;
         chat = new LinkedList<ChatMessage>();
         connectToMulticast();
@@ -166,18 +158,22 @@ public class GameChatController {
             throw new IllegalStateException("Spectator can't send messages");
 
         ServerMessage serverMessage;
-        if (room.isInGame())
-            serverMessage = new ServerMessage(message, currentGame.getWord(), mainPlayer, multicast);
-        else
-            serverMessage = new ServerMessage(message, null, mainPlayer, multicast);
-        if (serverMessage.isGuessed()) {
-            String notification = mainPlayer.getUsername() + " guessed the word! (+ " +
-                    currentGame.getPointsForGuesser() + " points)";
-            chat.add(new MessageNotificationView(notification, Color.GREEN));
-            finishGame(mainPlayer);
+        if (room.isInGame()) {
+            serverMessage = new ServerMessage(message, currentGame != null ? currentGame.getWord() : null, mainPlayer.getUsername());
         } else {
-            chat.add(new MessageSentView(serverMessage));
+            serverMessage = new ServerMessage(message, null, mainPlayer.getUsername());
+
+            if (serverMessage.isGuessed()) {
+                String notification = mainPlayer.getUsername() + " guessed the word! (+ " +
+                        currentGame.getPointsForGuesser() + " points)";
+                chat.add(new MessageNotificationView(notification, Color.GREEN));
+                finishGame(mainPlayer);
+            } else {
+                chat.add(new MessageSentView(serverMessage));
+            }
         }
+        GameChatResponse response = new GameChatResponse(GameChatResponseType.SERVER_MESSAGE, serverMessage.toJSON());
+        multicast.sendMessages(response.toJSON());
     }
 
     /**
@@ -191,7 +187,7 @@ public class GameChatController {
      */
     public void receiveMessage(@NonNull ServerMessage serverMessage) {
         if (serverMessage.isGuessed()) {
-            Player winner = serverMessage.getSender();
+            Player winner = getPlayer(serverMessage.getUsername());
             String notification = winner.getUsername() + " guessed the word! (+ " +
                     currentGame.getPointsForGuesser() + " points)";
             chat.add(new MessageNotificationView(notification, Color.GREEN));
@@ -258,9 +254,6 @@ public class GameChatController {
                 if (room.isInGame())
                     serverNotification.getPlayer().setStatus(PlayerStatus.SPECTATOR);
                 room.addPlayer(serverNotification.getPlayer());
-                //TODO: do a request to the server for the next chooser.
-                //if (room.getNumberOfPlayers() == 2)
-                    //startChoosingPeriod();
                 break;
             case LEFT:
                 room.removePlayer(serverNotification.getPlayer());
@@ -269,9 +262,25 @@ public class GameChatController {
         }
     }
 
-    /*
+    public void listenServer(GameChatResponse response) {
+        GameChatResponseType type = response.getType();
+        try {
+            if (type == GameChatResponseType.SERVER_MESSAGE) {
+                ServerMessage serverMessage = new ServerMessage(response.getData());
+                receiveMessage(serverMessage);
+            } else if (type == GameChatResponseType.SERVER_NOTIFICATION) {
+                ServerNotification serverNotification = new ServerNotification(response.getData());
+                manageServerNotification(serverNotification);
+            } else if (type == GameChatResponseType.CHOOSER) {
+                startChoosingPeriod(response.getData());
+            }
+        }catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void updateGame() {
-        if (room.isGaming()) {
+        if (room.isInGame()) {
             if (currentGame.isRoundFinished(Room.TIME_PER_ROUND_IN_MILLISECONDS)) {
                 char revealedLetter = currentGame.revealOneMoreLetter();
                 String notification1 = "letter " + revealedLetter +
@@ -292,7 +301,6 @@ public class GameChatController {
             }
         }
     }
-    */
 
     /**
      * @param choosingTime in milliseconds
@@ -315,11 +323,22 @@ public class GameChatController {
      * This function is called when the main player exit the game.
      * You must send the ServerNotification returned by this method to all the other players
      */
-    public ServerNotification generateExitNotification() {
-        return new ServerNotification(mainPlayer, WhatHappened.LEFT);
+    public void sendExitNotification() {
+        ServerNotification serverNotification = new ServerNotification(mainPlayer, WhatHappened.LEFT);
+        multicast.sendMessages(serverNotification.toJSON());
+        multicast.close();
+        //T
     }
 
     public MulticastServer getMulticastServer() {
         return multicast;
+    }
+
+    public Player getPlayer(String username) {
+        for (Player p : getPlayers()) {
+            if (p.getUsername().equals(username))
+                return p;
+        }
+        return null;
     }
 }

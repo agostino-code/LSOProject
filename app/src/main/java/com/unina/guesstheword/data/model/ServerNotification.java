@@ -1,6 +1,8 @@
 package com.unina.guesstheword.data.model;
 
 import androidx.annotation.NonNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /*
  * JoinedNotification e HasLeftNotification dovrebbero essere delle classi, sarebbe molto più elegante
@@ -11,7 +13,7 @@ import androidx.annotation.NonNull;
  * Notification from the server or for the server of a player joining or leaving the room
  *
  */
-public class ServerNotification {
+public class ServerNotification implements JSONData{
     private final Player player;
     private final WhatHappened whatHappened;
 
@@ -21,6 +23,12 @@ public class ServerNotification {
     public ServerNotification(@NonNull Player player, @NonNull WhatHappened whatHappened) {
         this.player = player;
         this.whatHappened = whatHappened;
+    }
+
+    public ServerNotification(String json) throws JSONException {
+        JSONObject jsonObject = new JSONObject(json);
+        player = new Player(jsonObject.getString("player"));
+        whatHappened = WhatHappened.valueOf(jsonObject.getString("whatHappened"));
     }
 
     /*
@@ -59,5 +67,17 @@ public class ServerNotification {
                 break;
         }
         return ret;
+    }
+
+    //toJSON
+    public String toJSON() {
+            JSONObject jsonRoom = new JSONObject();
+            try {
+                jsonRoom.put("player", player.toJSON());
+                jsonRoom.put("whatHappened", whatHappened.getValue());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return jsonRoom.toString();
     }
 }

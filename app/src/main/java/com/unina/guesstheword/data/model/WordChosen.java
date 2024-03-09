@@ -11,9 +11,20 @@ public class WordChosen {
     private final String word;
     private final String mixedLetters;
 
+    /**
+     * Constructor called when the word is first chosen by the chooser
+     */
     public WordChosen(String word) {
         this.word = word;
         mixedLetters = removeDuplicatesAndShuffle(word);
+    }
+
+    /**
+     * Constructor called when a user joins an in-gaming room
+     */
+    public WordChosen(String word, String mixedLetters) {
+        this.word = word;
+        this.mixedLetters = mixedLetters;
     }
 
     public String getWord() {

@@ -2,24 +2,16 @@ package com.unina.guesstheword.control;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import com.unina.guesstheword.Constants;
 import com.unina.guesstheword.GuessTheWordApplication;
 import com.unina.guesstheword.R;
-import com.unina.guesstheword.data.model.Language;
-import com.unina.guesstheword.data.model.Player;
-import com.unina.guesstheword.data.model.Request;
-import com.unina.guesstheword.data.model.Response;
-import com.unina.guesstheword.data.model.Room;
-import com.unina.guesstheword.data.model.User;
-import com.unina.guesstheword.view.login.LoginActivity;
-
+import com.unina.guesstheword.data.model.*;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -189,10 +181,12 @@ public class Controller {
             room.setAddress(response.getData());
             Player player = new Player(user);
             GameChatController.setInstance(player, room);
+            joinRoom(room);
             return true;
         } else {
             return false;
         }
+
     }
 
     /**
@@ -230,13 +224,28 @@ public class Controller {
             showConnectionLostAlert();
             return false;
         }
-
         Request request = new Request("JOIN_ROOM", room);
         Response response = sendRequestAndGetResponse(request);
         if (response.getResponseType().equals("SUCCESS")) {
-            room.setAddress(response.getData());
             Player player = new Player(user);
-            GameChatController.setInstance(player, room);
+            try {
+                Room newroom = new Room(response.getData());
+                //Get json "word" and convert it to string
+                if(newroom.isInGame()) {
+                    JSONObject jsonObject = new JSONObject(response.getData());
+                    String word = jsonObject.getString("word");
+                    String mixedLetters = jsonObject.getString("mixedletters");
+                    WordChosen wordChosen = new WordChosen(word,mixedLetters);
+                    String chooserUsername = jsonObject.getString("chooser");
+                    newroom.setChooser(chooserUsername);
+                    Game game = new Game(wordChosen);
+                    GameChatController.setInstance(player, newroom, game);
+                }else{
+                    GameChatController.setInstance(player, newroom, null);
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
             return true;
         } else {
             return false;

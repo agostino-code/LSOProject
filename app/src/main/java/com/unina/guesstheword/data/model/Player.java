@@ -63,11 +63,11 @@ public class Player implements JSONData {
 
     /**
      * Consructor from a JSON string
-     * @param jsonPlayer JSON string
+     * @param json JSON string
      * @throws JSONException
      */
-    public Player(String jsonPlayer) throws JSONException {
-        JSONObject jsonObject = new JSONObject(jsonPlayer);
+    public Player(String json) throws JSONException {
+        JSONObject jsonObject = new JSONObject(json);
         status = PlayerStatus.fromString(jsonObject.getString("status"));
         score = jsonObject.getInt("score");
         user = new User(jsonObject.getString("username"), jsonObject.getInt("avatar"));

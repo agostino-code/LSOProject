@@ -82,6 +82,12 @@ public class GameActivity extends GeneralActivity {
                 sendButton.setEnabled(!messageToSend.isEmpty());
             }
         });
+
+        new Thread(() -> {
+            while(true) {
+                gameChatController.updateGame();
+            }
+        }).start();
     }
 
     @Override
@@ -93,7 +99,8 @@ public class GameActivity extends GeneralActivity {
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                sendNotificationToServer(new ServerNotification(gameChatController.getMainPlayer(), WhatHappened.LEFT));
+                gameChatController.sendExitNotification();
+//                sendNotificationToServer(new ServerNotification(gameChatController.getMainPlayer(), WhatHappened.LEFT));
                 GameChatController.close();
                 goBackToMenu();
             }
@@ -117,10 +124,8 @@ public class GameActivity extends GeneralActivity {
     public void sendMessage(View view) {
         if(messageToSend.isEmpty())
             return;
-
-        ServerMessage serverMessage = new ServerMessage(messageToSend, gameChatController.getWordToGuess(), gameChatController.getMainPlayer(), gameChatController.getMulticastServer());
-        sendChatMessageToServer(serverMessage);
-
+//        ServerMessage serverMessage = new ServerMessage(messageToSend, gameChatController.getWordToGuess(), gameChatController.getMainPlayer());
+//        sendChatMessageToServer(serverMessage);
         gameChatController.sendMessage(messageToSend);
         adapter = new MessagesAdapter(gameChatController.getChat(), GameActivity.this);
         chatRecyclerView.setAdapter(adapter);
@@ -132,17 +137,17 @@ public class GameActivity extends GeneralActivity {
         dialog.show();
     }
 
-    private void sendNotificationToServer(ServerNotification serverNotification) {
-        progressBar.setVisibility(ProgressBar.VISIBLE);
-        //TODO per agostino: send notification to server (to other players)
-        progressBar.setVisibility(ProgressBar.GONE);
-    }
+//    private void sendNotificationToServer(ServerNotification serverNotification) {
+//        progressBar.setVisibility(ProgressBar.VISIBLE);
+//        //TODO per agostino: send notification to server (to other players)
+//        progressBar.setVisibility(ProgressBar.GONE);
+//    }
 
-    private void sendChatMessageToServer(ServerMessage serverMessage) {
-        progressBar.setVisibility(ProgressBar.VISIBLE);
-        //TODO per agostino: send message to server (to other players)
-        progressBar.setVisibility(ProgressBar.GONE);
-    }
+//    private void sendChatMessageToServer(ServerMessage serverMessage) {
+//        progressBar.setVisibility(ProgressBar.VISIBLE);
+//        //TODO per agostino: send message to server (to other players)
+//        progressBar.setVisibility(ProgressBar.GONE);
+//    }
 
     public void showErrorMessage(String errorMessage) {
         Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();

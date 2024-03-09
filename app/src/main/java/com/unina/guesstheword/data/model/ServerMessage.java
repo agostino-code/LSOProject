@@ -2,30 +2,33 @@ package com.unina.guesstheword.data.model;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import com.unina.guesstheword.service.MulticastServer;
-
-public class ServerMessage {
+public class ServerMessage implements JSONData {
     private final String message;
     private final boolean isGuessed;
-    private final Player sender;
+    private final String username;
 
     /**
      * Constructor
      *
      * @param message     message sent by the player
      * @param wordToGuess word to guess, if the room is gaming (can be null)
-     * @param sender      player who sent the message
+     * @param username      player who sent the message
      */
-    public ServerMessage(@NonNull String message, @Nullable String wordToGuess, @NonNull Player sender, MulticastServer server) {
+    public ServerMessage(@NonNull String message, @Nullable String wordToGuess, @NonNull String username) {
         this.message = message;
         isGuessed = message.equals(wordToGuess);
-        this.sender = sender;
-        if (isGuessed) {
-            server.sendMessages("The word has been guessed by " + sender.getUsername());
-        } else {
-            server.sendMessages(sender.getUsername() + " said: " + message);
-        }
+        this.username = username;
+    }
+
+    public ServerMessage(String json) throws JSONException {
+        JSONObject jsonObject = new JSONObject(json);
+        message = jsonObject.getString("message");
+        isGuessed = jsonObject.getBoolean("isGuessed");
+        username = jsonObject.getString("username");
+
     }
 
     public String getMessage() {
@@ -36,8 +39,21 @@ public class ServerMessage {
         return isGuessed;
     }
 
-    public Player getSender() {
-        return sender;
+    public String getUsername() {
+        return username;
+    }
+
+    //toJSON
+    public String toJSON() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("message", message);
+            jsonObject.put("isGuessed", isGuessed);
+            jsonObject.put("username", username);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        return jsonObject.toString();
     }
 
 }

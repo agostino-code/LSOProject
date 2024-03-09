@@ -1,6 +1,7 @@
 package com.unina.guesstheword.view.game;
 
 import androidx.annotation.NonNull;
+import com.unina.guesstheword.control.GameChatController;
 import com.unina.guesstheword.data.model.ChatMessage;
 import com.unina.guesstheword.data.model.Player;
 import com.unina.guesstheword.data.model.ServerMessage;
@@ -26,9 +27,10 @@ public class MessageReceivedView extends ChatMessage {
      */
     public MessageReceivedView(@NonNull ServerMessage serverMessage) {
         super(serverMessage.getMessage());
-        sender = serverMessage.getSender();
+        String username = serverMessage.getUsername();
+        //Get object player from Game Chat Controller from the username
+        sender = GameChatController.getInstance().getPlayer(username);
     }
-
     /*
      * Getters
      */
