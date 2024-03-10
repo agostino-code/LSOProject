@@ -91,11 +91,6 @@ public class FindGameActivity extends GeneralActivity {
             }
             progressBar.setVisibility(ProgressBar.GONE);
             //await for the room to be updated
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         /*
         LinkedList<Player> players = new LinkedList<Player>(); //giocatori fittizi per test, da rimuovere
         players.add(new Player(null, 0, "Test", 1));
