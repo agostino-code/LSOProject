@@ -240,6 +240,8 @@ public class Room implements JSONData {
         jsonRoom.put("name", this.name);
         jsonRoom.put("maxNumberOfPlayers", this.maxNumberOfPlayers);
         jsonRoom.put("language", this.language.getLanguageCode());
+        if(address != null)
+            jsonRoom.put("address", this.address);
         return jsonRoom;
     }
 

@@ -70,14 +70,15 @@ public class ServerNotification implements JSONData{
     }
 
     //toJSON
-    public String toJSON() {
+    public JSONObject toJSONObject() throws JSONException {
             JSONObject jsonRoom = new JSONObject();
-            try {
                 jsonRoom.put("player", player.toJSON());
                 jsonRoom.put("whatHappened", whatHappened.getValue());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return jsonRoom.toString();
+            return jsonRoom;
+    }
+
+    @Override
+    public String toJSON() throws JSONException {
+        return this.toJSONObject().toString();
     }
 }

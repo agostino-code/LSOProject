@@ -18,6 +18,8 @@ import com.unina.guesstheword.view.game.GameActivity;
 import com.unina.guesstheword.view.GeneralActivity;
 
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FindGameActivity extends GeneralActivity {
     private ActivityFindGameBinding binding;
@@ -78,7 +80,8 @@ public class FindGameActivity extends GeneralActivity {
     private Room retrieveCompleteRoomFromServer(Room room) {
         progressBar.setVisibility(ProgressBar.VISIBLE);
 
-        boolean success = Controller.getInstance().joinRoom(room);
+//        GameChatController.setInstance(new Player(Controller.getInstance().getUser()), room, null);
+        boolean success = Controller.getInstance().joinRoom(room); //TODO: join room
             if(success) {
                 startRoomSocket(GameChatController.getInstance().getRoom());
                 goToGameActivity();
@@ -86,8 +89,13 @@ public class FindGameActivity extends GeneralActivity {
             } else {
                 Toast.makeText(getApplicationContext(), "Error entering the room", Toast.LENGTH_SHORT).show();
             }
-        progressBar.setVisibility(ProgressBar.GONE);
-
+            progressBar.setVisibility(ProgressBar.GONE);
+            //await for the room to be updated
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         /*
         LinkedList<Player> players = new LinkedList<Player>(); //giocatori fittizi per test, da rimuovere
         players.add(new Player(null, 0, "Test", 1));
