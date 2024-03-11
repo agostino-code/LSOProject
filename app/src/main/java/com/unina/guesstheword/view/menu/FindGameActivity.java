@@ -50,12 +50,13 @@ public class FindGameActivity extends GeneralActivity {
                     }
 
                     Room completeClickedRoom = retrieveCompleteRoomFromServer(room);
+                    /* Agostino sta roba l'ha messa dentro il controller
                     Game currentGame = null;
                     if(room.isInGame())
                         currentGame = retrieveCurrentGame(room.getAddress());
                     Player mainPlayer = new Player(Controller.getInstance().getUser(), room.isInGame());
                     GameChatController.setInstance(mainPlayer, completeClickedRoom, currentGame);
-                    goToGameActivity();
+                    goToGameActivity(); */
                 }
             });
             roomsRecyclerView.setLayoutManager(new LinearLayoutManager(this));

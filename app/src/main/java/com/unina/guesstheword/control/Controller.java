@@ -169,19 +169,15 @@ public class Controller {
             return false;
         }
 
-        Room room;
-        try {
-            room = new Room(roomName, maxPlayers, getLanguage(language));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        Player host = new Player(user);
+        Room room = new Room(roomName, maxPlayers, getLanguage(language), host);
         Request request = new Request("NEW_ROOM", room);
         Response response = sendRequestAndGetResponse(request);
         if (response.getResponseType().equals("SUCCESS")) {
             room.setAddress(response.getData());
             Player player = new Player(user);
             GameChatController.setInstance(player, room);
-            joinRoom(room);
+            //joinRoom(room); assolutamente NO.
             return true;
         } else {
             return false;
@@ -206,7 +202,7 @@ public class Controller {
                 JSONArray jsonArray = new JSONArray(response.getData());
                 for (int i = 0; i < jsonArray.length(); i++) {
                     rooms.add(new Room(jsonArray.getString(i))); // replace 0 and Language.ENGLISH with actual values
-                }
+                } //TODO: sicuro che jsonArray.getString(i) restituisca un oggetto Room?
                 return rooms;
             } catch (JSONException e) {
                 throw new RuntimeException(e);
@@ -229,16 +225,31 @@ public class Controller {
         if (response.getResponseType().equals("SUCCESS")) {
             Player player = new Player(user);
             try {
-                Room newroom = new Room(response.getData());
+                Room jsonroom = new Room(response.getData());
+
+                Room newroom = new Room(jsonroom.getName(),
+                        jsonroom.getMaxNumberOfPlayers(),
+                        jsonroom.isInGame(),
+                        jsonroom.getAddress(),
+                        jsonroom.getRound(),
+                        jsonroom.getLanguage(),
+                        jsonroom.getPlayers(),
+                        player);
+                //TODO: send back this updated room with the new player joined to the server
+
                 //Get json "word" and convert it to string
                 if(newroom.isInGame()) {
+                    //Game
                     JSONObject jsonObject = new JSONObject(response.getData());
                     String word = jsonObject.getString("word");
                     String mixedLetters = jsonObject.getString("mixedletters");
                     WordChosen wordChosen = new WordChosen(word,mixedLetters);
-                    String chooserUsername = jsonObject.getString("chooser");
-                    newroom.setChooser(chooserUsername);
-                    Game game = new Game(wordChosen);
+                    String revealedLetters = jsonObject.getString("revealedLetters");
+                    //String chooserUsername = jsonObject.getString("chooser");
+                    //newroom.setChooser(chooserUsername);
+                    Game game = new Game(wordChosen, revealedLetters);
+
+                    //GameChatController
                     GameChatController.setInstance(player, newroom, game);
                 }else{
                     GameChatController.setInstance(player, newroom, null);

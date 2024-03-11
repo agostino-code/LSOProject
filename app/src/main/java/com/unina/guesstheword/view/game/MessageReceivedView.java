@@ -29,7 +29,7 @@ public class MessageReceivedView extends ChatMessage {
         super(serverMessage.getMessage());
         String username = serverMessage.getUsername();
         //Get object player from Game Chat Controller from the username
-        sender = GameChatController.getInstance().getPlayer(username);
+        sender = GameChatController.getInstance().getRoom().getPlayer(username);
     }
     /*
      * Getters

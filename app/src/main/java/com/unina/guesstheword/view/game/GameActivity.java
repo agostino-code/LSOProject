@@ -5,15 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.unina.guesstheword.control.GameChatController;
-import com.unina.guesstheword.data.model.ServerMessage;
-import com.unina.guesstheword.data.model.ServerNotification;
-import com.unina.guesstheword.data.model.WhatHappened;
+import com.unina.guesstheword.data.model.PlayerStatus;
 import com.unina.guesstheword.view.GeneralActivity;
 import com.unina.guesstheword.view.menu.MenuActivity;
 
@@ -51,12 +50,7 @@ public class GameActivity extends GeneralActivity {
         chatRecyclerView = binding.gameChatRecycler;
         progressBar = binding.loading;
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        backButton.setOnClickListener(v -> onBackPressed());
 
         roomNameTextView.setText(gameChatController.getRoom().getName());
         incompleteWordTextView.setText(gameChatController.getIncompleteWord());
@@ -64,6 +58,19 @@ public class GameActivity extends GeneralActivity {
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MessagesAdapter(gameChatController.getChat(), this);
         chatRecyclerView.setAdapter(adapter);
+
+        gameChatController.getChatLiveData().observe(this, chat -> {
+            adapter = new MessagesAdapter(chat, this);
+            chatRecyclerView.setAdapter(adapter);
+            chatRecyclerView.scrollToPosition(adapter.getItemCount() - 1);
+        });
+
+        gameChatController.getMainPlayerStatusLiveData().observe(this, playerStatus -> {
+            if (playerStatus == PlayerStatus.CHOOSER) {
+                RandomWordsDialog dialog = new RandomWordsDialog(this);
+                dialog.show();
+            }
+        });
 
         editMessage.addTextChangedListener(new TextWatcher() {
             @Override
@@ -127,9 +134,8 @@ public class GameActivity extends GeneralActivity {
 //        ServerMessage serverMessage = new ServerMessage(messageToSend, gameChatController.getWordToGuess(), gameChatController.getMainPlayer());
 //        sendChatMessageToServer(serverMessage);
         gameChatController.sendMessage(messageToSend);
-        adapter = new MessagesAdapter(gameChatController.getChat(), GameActivity.this);
-        chatRecyclerView.setAdapter(adapter);
         editMessage.setText("");
+        adapter.notifyDataSetChanged();
     }
 
     public void showBottomSheetDialog(View view) {

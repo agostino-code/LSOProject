@@ -3,6 +3,8 @@ package com.unina.guesstheword.control;
 import android.graphics.Color;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.MutableLiveData;
+
 import com.unina.guesstheword.data.model.*;
 import com.unina.guesstheword.service.MulticastServer;
 import com.unina.guesstheword.view.game.MessageNotificationView;
@@ -16,20 +18,31 @@ import java.util.List;
 public class GameChatController {
     private static GameChatController instance = null;
 
+    private final MutableLiveData<PlayerStatus> mainPlayerStatusLiveData = new MutableLiveData<>();
     private final Player mainPlayer;
     private final Room room;
     @Nullable
     private Game currentGame;
-    private final LinkedList<ChatMessage> chat;
+    private final MutableLiveData<LinkedList<ChatMessage>> chatLiveData = new MutableLiveData<>(new LinkedList<>());
+    private final LinkedList<ChatMessage> chat = chatLiveData.getValue();
     private long initialTime;
 
     private MulticastServer multicast;
+
+    public MutableLiveData<LinkedList<ChatMessage>> getChatLiveData() {
+        return chatLiveData;
+    }
+
+    public MutableLiveData<PlayerStatus> getMainPlayerStatusLiveData() {
+        return mainPlayerStatusLiveData;
+    }
 
     /**
      * Called when the user exit the room
      */
     public static synchronized void close() {
         instance = null;
+        WordsGenerator.resetInstance();
     }
 
     /**
@@ -51,10 +64,9 @@ public class GameChatController {
      */
     private GameChatController(@NonNull Player host, @NonNull Room room) {
         this.mainPlayer = host;
+        mainPlayerStatusLiveData.setValue(mainPlayer.getStatus());
         this.room = room;
-        this.room.addPlayer(this.mainPlayer);
         currentGame = null;
-        chat = new LinkedList<ChatMessage>();
         connectToMulticast();
     }
 
@@ -79,9 +91,9 @@ public class GameChatController {
      */
     private GameChatController(@NonNull Player mainPlayer, @NonNull Room room, @Nullable Game currentGame) {
         this.mainPlayer = mainPlayer;
+        mainPlayerStatusLiveData.setValue(mainPlayer.getStatus());
         this.room = room;
         this.currentGame = currentGame;
-        chat = new LinkedList<ChatMessage>();
         connectToMulticast();
     }
 
@@ -105,7 +117,7 @@ public class GameChatController {
     /*
      * Getters
      */
-    public List<ChatMessage> getChat() {
+    public LinkedList<ChatMessage> getChat() {
         return chat;
     }
 
@@ -167,7 +179,7 @@ public class GameChatController {
                 String notification = mainPlayer.getUsername() + " guessed the word! (+ " +
                         currentGame.getPointsForGuesser() + " points)";
                 chat.add(new MessageNotificationView(notification, Color.GREEN));
-                finishGame(mainPlayer);
+                finishGame(mainPlayer.getUsername());
             } else {
                 chat.add(new MessageSentView(serverMessage));
             }
@@ -187,11 +199,10 @@ public class GameChatController {
      */
     public void receiveMessage(@NonNull ServerMessage serverMessage) {
         if (serverMessage.isGuessed()) {
-            Player winner = getPlayer(serverMessage.getUsername());
-            String notification = winner.getUsername() + " guessed the word! (+ " +
+            String notification = serverMessage.getUsername() + " guessed the word! (+ " +
                     currentGame.getPointsForGuesser() + " points)";
             chat.add(new MessageNotificationView(notification, Color.GREEN));
-            finishGame(winner);
+            finishGame(serverMessage.getUsername());
         } else {
             chat.add(new MessageReceivedView(serverMessage));
         }
@@ -201,7 +212,8 @@ public class GameChatController {
      * This function is used to terminate a game and is called or when a player guess the word
      * (the guesser wins) or when nobody guesses the word but the time finishes (the chooser wins)
      */
-    private void finishGame(Player winner) {
+    private void finishGame(String winnerUsername) {
+        Player winner = room.getPlayer(winnerUsername);
         switch (winner.getStatus()) {
             case GUESSER:
                 winner.addPoints(currentGame.getPointsForGuesser());
@@ -210,13 +222,22 @@ public class GameChatController {
                 winner.addPoints(currentGame.getPointsForChooser());
                 break;
         }
+
+        if (mainPlayer.getUsername().equals(winnerUsername))
+            switch (mainPlayer.getStatus()) {
+                case GUESSER:
+                    mainPlayer.addPoints(currentGame.getPointsForGuesser());
+                    break;
+                case CHOOSER:
+                    mainPlayer.addPoints(currentGame.getPointsForChooser());
+                    break;
+            }
+
         room.setIsInGame(false);
         room.resetStateOfAllPlayers();
+        room.incrementRound();
         currentGame = null;
-        //TODO: do a request to the server for the next chooser.
-        //if (room.getNumberOfPlayers() > 1) {
-        //    startChoosingPeriod();
-        //}
+        mainPlayer.setStatus(null);
     }
 
 
@@ -224,10 +245,10 @@ public class GameChatController {
      * This function is called right after the server picks a Chooser.
      * It sets the chooser in the room and adds a notification in the chat.
      */
-    public void startChoosingPeriod(String chooser) {
+    public void startChoosingPeriod(String chooserUsername) {
         initialTime = System.currentTimeMillis();
-        room.setChooser(chooser);
-        String notification = "A new game is starting! wait until " + chooser + " chooses a word";
+        room.setChooser(chooserUsername);
+        String notification = "A new game is starting! wait until " + chooserUsername + " chooses a word";
         chat.add(new MessageNotificationView(notification, Color.YELLOW));
         if (mainPlayer.equals(room.getChooser()))
             mainPlayer.setStatus(PlayerStatus.CHOOSER);
@@ -273,7 +294,7 @@ public class GameChatController {
                 manageServerNotification(serverNotification);
             } else if (type == GameChatResponseType.CHOOSER) {
                 startChoosingPeriod(response.getData());
-            }
+            } //TODO: ricevi WORD_CHOSEN
         }catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -290,14 +311,13 @@ public class GameChatController {
                     String notification2 = "Nobody guessed the word. " + room.getChooser().getUsername() +
                             " wins the game! (+ " + currentGame.getPointsForChooser() + " points)";
                     chat.add(new MessageNotificationView(notification2, Color.GREEN));
-                    finishGame(room.getChooser());
+                    finishGame(room.getChooser().getUsername());
                 }
             }
-        } else {
+        } else if(mainPlayer.getStatus() == PlayerStatus.CHOOSER) {
             if (isChoosingTimeFinished(Room.CHOOSING_TIME_IN_MILLISECONDS)) {
-                //TODO: send the random word to the server
-            } else {
-
+                WordChosen randomWord = new WordChosen(WordsGenerator.getInstance(room, chat).getRandomWord());
+                startGame(randomWord);
             }
         }
     }
@@ -317,6 +337,7 @@ public class GameChatController {
         room.setIsInGame(true);
         String notification = "Word chosen! The word to guess is " + currentGame.getIncompleteWord();
         chat.add(new MessageNotificationView(notification, Color.YELLOW));
+        //TODO: send wordChosen to the server
     }
 
     /**
@@ -332,13 +353,5 @@ public class GameChatController {
 
     public MulticastServer getMulticastServer() {
         return multicast;
-    }
-
-    public Player getPlayer(String username) {
-        for (Player p : getPlayers()) {
-            if (p.getUsername().equals(username))
-                return p;
-        }
-        return null;
     }
 }

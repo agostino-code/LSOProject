@@ -19,12 +19,24 @@ import java.util.Random;
  * words in the language given.
  */
 public class WordsGenerator {
+    private static WordsGenerator instance = null;
+
     private ArrayList<String> words;
     private String url = "https://random-word-api.herokuapp.com/word";
     private final LinkedList<ChatMessage> chat;
     private final Random randomNumberGenerator;
 
-    public WordsGenerator(Room room, LinkedList<ChatMessage> chat) {
+    public static WordsGenerator getInstance(Room room, LinkedList<ChatMessage> chat) {
+        if(instance == null)
+            instance = new WordsGenerator(room, chat);
+        return instance;
+    }
+
+    public static void resetInstance() {
+        instance = null;
+    }
+
+    private WordsGenerator(Room room, LinkedList<ChatMessage> chat) {
         String language = room.getLanguage().toString();
         int numberOfWords = 10;
         url = url + "?number=" + numberOfWords + "&lang=" + language;
@@ -42,16 +54,15 @@ public class WordsGenerator {
                     for (int i = 0; i < jsonArray.length(); i++)
                         words.set(i, jsonArray.getString(i));
                 } catch (JSONException exc) {
-                    chat.add(new MessageNotificationView("Can't extract random words " +
-                            "for the chooser: " + exc, Color.RED));
+                    chat.add(new MessageNotificationView("Connection error. Can't extract random words" +
+                            " for the chooser." , Color.RED));
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                chat.add(new MessageNotificationView("Can't extract random words " +
-                        "for the chooser: " + error.toString(), Color.RED));
-            }
+                chat.add(new MessageNotificationView("Connection error. Can't extract random words" +
+                        " for the chooser." , Color.RED));}
         });
     }
 
@@ -59,7 +70,7 @@ public class WordsGenerator {
         return url;
     }
 
-    public List<String> getWords() {
+    public ArrayList<String> getWords() {
         return words;
     }
 

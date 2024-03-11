@@ -82,7 +82,7 @@ public class Room implements JSONData {
     /**
      * Constructor called to create an incomplete room when a player is searching for a room in FindGameActivity
      */
-    public Room(String name, int numberOfPlayers, int maxNumberOfPlayers,String address, @NonNull Language language) {
+    public Room(String name, int numberOfPlayers, int maxNumberOfPlayers, String address, @NonNull Language language) {
         this.name = name;
         this.numberOfPlayers = numberOfPlayers;
         this.maxNumberOfPlayers = maxNumberOfPlayers;
@@ -92,16 +92,6 @@ public class Room implements JSONData {
         players = null;
     }
 
-    public Room(String name, int maxPlayers, Language language) throws JSONException {
-        this.name = name;
-        this.maxNumberOfPlayers = maxPlayers;
-        this.language = language;
-        this.inGame = false;
-        this.round = 0;
-        this.players = new LinkedList<Player>();
-        this.numberOfPlayers = 0;
-        this.indexOfChooser = -1;
-    }
     public Room(String jsonRoom) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonRoom);
         name = jsonObject.getString("name");
@@ -186,8 +176,10 @@ public class Room implements JSONData {
      * this function set the given player as the chooser and all the other players as the guesser
      */
     public void setChooser(String chooserUsername) {
-        if(chooserUsername == null)
+        if(chooserUsername == null) {
+            indexOfChooser = -1;
             return;
+        }
 
         int i=0;
         for (Player player : players) {
@@ -231,8 +223,21 @@ public class Room implements JSONData {
     }
 
     public void resetStateOfAllPlayers() {
+        indexOfChooser = -1;
         for (Player player : players)
             player.setStatus(null);
+    }
+
+    public Player getPlayer(String username) {
+        for (Player player : players) {
+            if (player.getUsername().equals(username))
+                return player;
+        }
+        return null;
+    }
+
+    public boolean thereIsAChooser() {
+        return indexOfChooser != -1;
     }
 
     public JSONObject toJSONObject() throws JSONException {

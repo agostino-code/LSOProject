@@ -2,9 +2,11 @@ package com.unina.guesstheword.view;
 
 import android.app.Activity;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.unina.guesstheword.GuessTheWordApplication;
 
-public class GeneralActivity extends Activity {
+public class GeneralActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
