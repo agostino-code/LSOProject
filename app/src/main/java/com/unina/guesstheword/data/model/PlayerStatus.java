@@ -22,6 +22,10 @@ public enum PlayerStatus {
         throw new IllegalArgumentException("No constant with text " + status + " found");
     }
 
+    public String getStatus() {
+        return status;
+    }
+
     public String toViewString() {
         switch (this) {
             case SPECTATOR:

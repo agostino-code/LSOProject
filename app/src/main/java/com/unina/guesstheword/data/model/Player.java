@@ -129,7 +129,7 @@ public class Player implements JSONData {
         JSONObject jsonPlayer = new JSONObject();
 
         if (status != null) {
-            jsonPlayer.put("status", status.toString());
+            jsonPlayer.put("status", status.getStatus());
         } else {
             jsonPlayer.put("status", JSONObject.NULL);
         }

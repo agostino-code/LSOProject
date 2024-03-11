@@ -44,16 +44,15 @@ public class ServerMessage implements JSONData {
     }
 
     //toJSON
-    public String toJSON() {
+    public JSONObject toJSONObject() throws JSONException{
         JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("message", message);
-            jsonObject.put("isGuessed", isGuessed);
-            jsonObject.put("username", username);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        return jsonObject.toString();
+        jsonObject.put("message", this.message);
+        jsonObject.put("isGuessed", this.isGuessed);
+        jsonObject.put("username", this.username);
+        return jsonObject;
     }
 
+    public String toJSON() throws JSONException{
+        return this.toJSONObject().toString();
+    }
 }

@@ -32,7 +32,6 @@ public class Controller {
     User user;
 
     Controller() {
-
         if (!connectToServer())
             showNoConnectionAlert();
     }
@@ -177,7 +176,6 @@ public class Controller {
             room.setAddress(response.getData());
             Player player = new Player(user);
             GameChatController.setInstance(player, room);
-            //joinRoom(room); assolutamente NO.
             return true;
         } else {
             return false;
@@ -302,6 +300,9 @@ public class Controller {
             }
         }).join();
         if (response[0].getResponseType().equals("ERROR")) {
+//            GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> {
+//                Toast.makeText(GuessTheWordApplication.getInstance().getCurrentActivity(), response[0].getData(), Toast.LENGTH_SHORT).show();
+//            });
             Toast.makeText(GuessTheWordApplication.getInstance().getCurrentActivity(), response[0].getData(), Toast.LENGTH_SHORT).show();
         }
         return response[0];

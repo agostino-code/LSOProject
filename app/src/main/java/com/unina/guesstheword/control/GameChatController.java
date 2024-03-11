@@ -184,7 +184,12 @@ public class GameChatController {
                 chat.add(new MessageSentView(serverMessage));
             }
         }
-        GameChatResponse response = new GameChatResponse(GameChatResponseType.SERVER_MESSAGE, serverMessage.toJSON());
+        GameChatResponse response = null;
+        try {
+            response = new GameChatResponse(GameChatResponseType.SERVER_MESSAGE, serverMessage.toJSON());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
         multicast.sendMessages(response.toJSON());
     }
 
@@ -288,11 +293,13 @@ public class GameChatController {
         try {
             if (type == GameChatResponseType.SERVER_MESSAGE) {
                 ServerMessage serverMessage = new ServerMessage(response.getData());
-                receiveMessage(serverMessage);
+                if(!serverMessage.getUsername().equals(mainPlayer.getUsername()))
+                    receiveMessage(serverMessage);
             } else if (type == GameChatResponseType.SERVER_NOTIFICATION) {
                 ServerNotification serverNotification = new ServerNotification(response.getData());
-                manageServerNotification(serverNotification);
-            } else if (type == GameChatResponseType.CHOOSER) {
+                if(!serverNotification.getPlayer().getUsername().equals(mainPlayer.getUsername()))
+                    manageServerNotification(serverNotification);
+            } else if (type == GameChatResponseType.NEW_CHOOSER) {
                 startChoosingPeriod(response.getData());
             } //TODO: ricevi WORD_CHOSEN
         }catch (JSONException e) {
@@ -346,7 +353,11 @@ public class GameChatController {
      */
     public void sendExitNotification() {
         ServerNotification serverNotification = new ServerNotification(mainPlayer, WhatHappened.LEFT);
-        multicast.sendMessages(serverNotification.toJSON());
+        try {
+            multicast.sendMessages(serverNotification.toJSON());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
         multicast.close();
         //T
     }
