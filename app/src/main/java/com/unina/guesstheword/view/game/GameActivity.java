@@ -33,6 +33,7 @@ public class GameActivity extends GeneralActivity {
     private RecyclerView chatRecyclerView;
     private MessagesAdapter adapter;
     private ProgressBar progressBar;
+    private RandomWordsDialog randomWordsDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,8 +68,8 @@ public class GameActivity extends GeneralActivity {
 
         gameChatController.getMainPlayerStatusLiveData().observe(this, playerStatus -> {
             if (playerStatus == PlayerStatus.CHOOSER) {
-                RandomWordsDialog dialog = new RandomWordsDialog(this);
-                dialog.show();
+                randomWordsDialog = new RandomWordsDialog(this);
+                randomWordsDialog.show();
             }
         });
 
@@ -92,7 +93,7 @@ public class GameActivity extends GeneralActivity {
 
         new Thread(() -> {
             while(true) {
-                gameChatController.updateGame();
+                gameChatController.updateGame(randomWordsDialog);
             }
         }).start();
     }

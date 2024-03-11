@@ -233,7 +233,6 @@ public class Controller {
                         jsonroom.getLanguage(),
                         jsonroom.getPlayers(),
                         player);
-                //TODO: send back this updated room with the new player joined to the server
 
                 //Get json "word" and convert it to string
                 if(newroom.isInGame()) {
@@ -242,9 +241,7 @@ public class Controller {
                     String word = jsonObject.getString("word");
                     String mixedLetters = jsonObject.getString("mixedletters");
                     WordChosen wordChosen = new WordChosen(word,mixedLetters);
-                    String revealedLetters = jsonObject.getString("revealedLetters");
-                    //String chooserUsername = jsonObject.getString("chooser");
-                    //newroom.setChooser(chooserUsername);
+                    String revealedLetters = jsonObject.getString("revealedletters");
                     Game game = new Game(wordChosen, revealedLetters);
 
                     //GameChatController

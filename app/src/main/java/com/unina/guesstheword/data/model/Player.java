@@ -17,7 +17,7 @@ public class Player implements JSONData {
      */
     public Player(@NonNull User user, boolean isRoomGaming) {
         this.user = user;
-        status = isRoomGaming ? PlayerStatus.SPECTATOR : null;
+        status = isRoomGaming ? PlayerStatus.SPECTATOR : PlayerStatus.GUESSER;
         score = 0;
     }
 
@@ -27,7 +27,7 @@ public class Player implements JSONData {
      */
     public Player(@NonNull User user) {
         this.user = user;
-        status = null;
+        status = PlayerStatus.GUESSER;
         score = 0;
     }
 
@@ -41,15 +41,12 @@ public class Player implements JSONData {
         user = new User(username, avatar);
     }
 
-    /**
-     * Constructor called when a new player joins the room
-     * @param avatar chosen between 16 images (must be a number between 1-16, you can use the MACROS of the User class)
-     */
+    /*
     public Player(@NonNull String username, int avatar) {
         user = new User(username, avatar);
-        status = null;
+        status = PlayerStatus.GUESSER;
         score = 0;
-    }
+    }*/
 
     /**
      * Copy constructor

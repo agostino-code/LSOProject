@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class WordChosen {
+public class WordChosen implements JSONData {
     private final String word;
     private final String mixedLetters;
 
@@ -25,6 +25,14 @@ public class WordChosen {
     public WordChosen(String word, String mixedLetters) {
         this.word = word;
         this.mixedLetters = mixedLetters;
+    }
+
+    /**
+     * json Constructor
+     */
+    public WordChosen(JSONObject json) throws JSONException {
+        word = json.getString("word");
+        mixedLetters = json.getString("mixedLetters");
     }
 
     public String getWord() {
@@ -60,10 +68,11 @@ public class WordChosen {
         return resultBuilder.toString();
     }
 
-    public JSONObject toJSON() throws JSONException {
+    @Override
+    public String toJSON() throws JSONException {
         JSONObject jsonWordChosen = new JSONObject();
         jsonWordChosen.put("word", word);
         jsonWordChosen.put("mixedLetters", mixedLetters);
-        return jsonWordChosen;
+        return jsonWordChosen.toString();
     }
 }

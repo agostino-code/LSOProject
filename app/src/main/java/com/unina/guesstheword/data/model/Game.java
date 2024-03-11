@@ -25,7 +25,7 @@ public class Game {
         this.word = wordChosen.getWord();
         this.mixedLetters = new StringBuilder(wordChosen.getMixedLetters());
         pointsForGuesser = word.length();
-        pointsForChooser = Math.max(0, pointsGap - pointsForGuesser);
+        pointsForChooser = Math.max(1, pointsGap - word.length());
         revealedLetters = "";
         incompleteWord = calculateIncompleteWord();
         initialTime = System.currentTimeMillis();

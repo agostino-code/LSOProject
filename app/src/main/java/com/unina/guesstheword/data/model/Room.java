@@ -225,7 +225,7 @@ public class Room implements JSONData {
     public void resetStateOfAllPlayers() {
         indexOfChooser = -1;
         for (Player player : players)
-            player.setStatus(null);
+            player.setStatus(PlayerStatus.GUESSER);
     }
 
     public Player getPlayer(String username) {

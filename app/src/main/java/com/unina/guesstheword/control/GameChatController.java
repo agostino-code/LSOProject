@@ -10,7 +10,10 @@ import com.unina.guesstheword.service.MulticastServer;
 import com.unina.guesstheword.view.game.MessageNotificationView;
 import com.unina.guesstheword.view.game.MessageReceivedView;
 import com.unina.guesstheword.view.game.MessageSentView;
+import com.unina.guesstheword.view.game.RandomWordsDialog;
+
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -301,13 +304,19 @@ public class GameChatController {
                     manageServerNotification(serverNotification);
             } else if (type == GameChatResponseType.NEW_CHOOSER) {
                 startChoosingPeriod(response.getData());
-            } //TODO: ricevi WORD_CHOSEN
+            } else if (type == GameChatResponseType.WORD_CHOSEN) {
+                if (mainPlayer.getStatus() == PlayerStatus.GUESSER) {
+                    JSONObject chosenWordJson = new JSONObject(response.getData());
+                    WordChosen wordChosen = new WordChosen(chosenWordJson);
+                    startGame(wordChosen);
+                }
+            }
         }catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void updateGame() {
+    public void updateGame(RandomWordsDialog randomWordsDialog) {
         if (room.isInGame()) {
             if (currentGame.isRoundFinished(Room.TIME_PER_ROUND_IN_MILLISECONDS)) {
                 char revealedLetter = currentGame.revealOneMoreLetter();
@@ -323,6 +332,7 @@ public class GameChatController {
             }
         } else if(mainPlayer.getStatus() == PlayerStatus.CHOOSER) {
             if (isChoosingTimeFinished(Room.CHOOSING_TIME_IN_MILLISECONDS)) {
+                randomWordsDialog.dismiss();
                 WordChosen randomWord = new WordChosen(WordsGenerator.getInstance(room, chat).getRandomWord());
                 startGame(randomWord);
             }
@@ -344,7 +354,11 @@ public class GameChatController {
         room.setIsInGame(true);
         String notification = "Word chosen! The word to guess is " + currentGame.getIncompleteWord();
         chat.add(new MessageNotificationView(notification, Color.YELLOW));
-        //TODO: send wordChosen to the server
+        try {
+            multicast.sendMessages(new GameChatResponse(GameChatResponseType.WORD_CHOSEN, wordChosen.toJSON()).toJSON());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
