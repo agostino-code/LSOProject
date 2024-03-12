@@ -31,7 +31,8 @@ public class GameChatResponse {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("responseType", getType());
-            jsonObject.put("data", getData());
+            jsonObject.put("data", new JSONObject(getData()));
+
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

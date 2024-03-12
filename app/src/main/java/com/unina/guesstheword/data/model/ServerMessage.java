@@ -43,7 +43,6 @@ public class ServerMessage implements JSONData {
         return username;
     }
 
-    //toJSON
     public JSONObject toJSONObject() throws JSONException{
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("message", this.message);

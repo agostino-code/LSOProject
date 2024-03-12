@@ -249,6 +249,7 @@ public class Controller {
                 }else{
                     GameChatController.setInstance(player, newroom, null);
                 }
+                GameChatController.getInstance().sendJoinNotification();
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }

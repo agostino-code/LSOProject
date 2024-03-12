@@ -72,8 +72,8 @@ public class ServerNotification implements JSONData{
     //toJSON
     public JSONObject toJSONObject() throws JSONException {
             JSONObject jsonRoom = new JSONObject();
-                jsonRoom.put("player", player.toJSON());
-                jsonRoom.put("whatHappened", whatHappened.getValue());
+                jsonRoom.put("player", new JSONObject(player.toJSON()));
+                jsonRoom.put("whatHappened", this.whatHappened.getValue());
             return jsonRoom;
     }
 

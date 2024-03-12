@@ -10,13 +10,17 @@ public class Player implements JSONData {
     @Nullable
     private PlayerStatus status;
     private int score;
-    private final User user;
+
+    private String username;
+
+    private int avatar;
 
     /**
      * Constructor called to create the main player who enters a new room
      */
     public Player(@NonNull User user, boolean isRoomGaming) {
-        this.user = user;
+        this.avatar = user.getAvatar();
+        this.username = user.getUsername();
         status = isRoomGaming ? PlayerStatus.SPECTATOR : PlayerStatus.GUESSER;
         score = 0;
     }
@@ -26,7 +30,8 @@ public class Player implements JSONData {
      * @param user
      */
     public Player(@NonNull User user) {
-        this.user = user;
+        this.avatar = user.getAvatar();
+        this.username = user.getUsername();
         status = PlayerStatus.GUESSER;
         score = 0;
     }
@@ -38,7 +43,8 @@ public class Player implements JSONData {
     public Player(@Nullable PlayerStatus status, int score, @NonNull String username, int avatar) {
         this.status = status;
         this.score = score;
-        user = new User(username, avatar);
+        this.username = username;
+        this.avatar = avatar;
     }
 
     /*
@@ -55,7 +61,8 @@ public class Player implements JSONData {
     public Player(@NonNull Player player) {
         status = player.status;
         score = player.score;
-        user = new User(player.user);
+        username = player.username;
+        avatar = player.avatar;
     }
 
     /**
@@ -67,7 +74,8 @@ public class Player implements JSONData {
         JSONObject jsonObject = new JSONObject(json);
         status = PlayerStatus.fromString(jsonObject.getString("status"));
         score = jsonObject.getInt("score");
-        user = new User(jsonObject.getString("username"), jsonObject.getInt("avatar"));
+        username = jsonObject.getString("username");
+        avatar = jsonObject.getInt("avatar");
     }
 
     /*
@@ -98,14 +106,14 @@ public class Player implements JSONData {
     }
 
     public String getUsername() {
-        return user.getUsername();
+        return username;
     }
 
     /**
      * @return avatar chosen between 16 images (a number between 1-16)
      */
     public int getAvatar() {
-        return user.getAvatar();
+        return avatar;
     }
 
     /*
@@ -124,15 +132,14 @@ public class Player implements JSONData {
 
     public JSONObject toJSONObject() throws JSONException {
         JSONObject jsonPlayer = new JSONObject();
-
         if (status != null) {
             jsonPlayer.put("status", status.getStatus());
         } else {
             jsonPlayer.put("status", JSONObject.NULL);
         }
         jsonPlayer.put("score", this.score);
-        jsonPlayer.put("user", this.user.toJSON());
-
+        jsonPlayer.put("username", this.username);
+        jsonPlayer.put("avatar", this.avatar);
         return jsonPlayer;
     }
 

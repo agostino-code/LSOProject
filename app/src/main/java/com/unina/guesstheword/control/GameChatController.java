@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
+import com.unina.guesstheword.GuessTheWordApplication;
 import com.unina.guesstheword.data.model.*;
 import com.unina.guesstheword.service.MulticastServer;
 import com.unina.guesstheword.view.game.MessageNotificationView;
@@ -193,6 +194,7 @@ public class GameChatController {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> chatLiveData.setValue(chat));
         multicast.sendMessages(response.toJSON());
     }
 
@@ -214,6 +216,7 @@ public class GameChatController {
         } else {
             chat.add(new MessageReceivedView(serverMessage));
         }
+        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> chatLiveData.setValue(chat));
     }
 
     /**
@@ -289,6 +292,7 @@ public class GameChatController {
                 chat.add(new MessageNotificationView(serverNotification));
                 break;
         }
+        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> chatLiveData.setValue(chat));
     }
 
     public void listenServer(GameChatResponse response) {
@@ -323,6 +327,7 @@ public class GameChatController {
                 String notification1 = "letter " + revealedLetter +
                         " revealed. Now the known word is " + currentGame.getIncompleteWord();
                 chat.add(new MessageNotificationView(notification1, Color.YELLOW));
+                GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> chatLiveData.setValue(chat));
                 if (currentGame.isWordFullRevealed()) {
                     String notification2 = "Nobody guessed the word. " + room.getChooser().getUsername() +
                             " wins the game! (+ " + currentGame.getPointsForChooser() + " points)";
@@ -337,6 +342,7 @@ public class GameChatController {
                 startGame(randomWord);
             }
         }
+
     }
 
     /**
@@ -359,8 +365,19 @@ public class GameChatController {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> chatLiveData.setValue(chat));
     }
 
+    public void sendJoinNotification() {
+
+        ServerNotification serverNotification = new ServerNotification(mainPlayer, WhatHappened.JOINED);
+        try {
+            GameChatResponse response = new GameChatResponse(GameChatResponseType.SERVER_NOTIFICATION, serverNotification.toJSON());
+            multicast.sendMessages(response.toJSON());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
     /**
      * This function is called when the main player exit the game.
      * You must send the ServerNotification returned by this method to all the other players

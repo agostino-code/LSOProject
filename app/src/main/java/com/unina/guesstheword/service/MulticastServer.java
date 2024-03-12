@@ -34,7 +34,7 @@ public class MulticastServer extends Thread{
         }
         try {
             group = InetAddress.getByName(address);
-            socket = new MulticastSocket();
+            socket = new MulticastSocket(Constants.PORT);
             socket.joinGroup(group);
         } catch (IOException e) {
             throw new RuntimeException(e);
