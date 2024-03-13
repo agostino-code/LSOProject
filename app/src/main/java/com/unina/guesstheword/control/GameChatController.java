@@ -259,8 +259,10 @@ public class GameChatController {
     public void startChoosingPeriod(String chooserUsername) {
         initialTime = System.currentTimeMillis();
         room.setChooser(chooserUsername);
+        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> mainPlayerStatusLiveData.setValue(mainPlayer.getStatus()));
         String notification = "A new game is starting! wait until " + chooserUsername + " chooses a word";
         chat.add(new MessageNotificationView(notification, Color.YELLOW));
+        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> chatLiveData.setValue(chat));
         if (mainPlayer.equals(room.getChooser()))
             mainPlayer.setStatus(PlayerStatus.CHOOSER);
         else

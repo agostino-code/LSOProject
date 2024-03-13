@@ -16,26 +16,29 @@ import com.unina.guesstheword.control.GameChatController;
 import com.unina.guesstheword.data.model.WordChosen;
 import com.unina.guesstheword.data.model.WordsGenerator;
 
+import java.util.concurrent.CompletableFuture;
+
 public class RandomWordsDialog extends Dialog {
     private final GameChatController gameChatController = GameChatController.getInstance();
     private final WordsGenerator wordsGenerator;
 
-    private TextView randomWord1;
-    private TextView randomWord2;
-    private TextView randomWord3;
-    private TextView randomWord4;
-    private TextView randomWord5;
-    private TextView randomWord6;
-    private TextView randomWord7;
-    private TextView randomWord8;
-    private TextView randomWord9;
-    private TextView randomWord10;
+    private final TextView randomWord1;
+    private final TextView randomWord2;
+    private final TextView randomWord3;
+    private final TextView randomWord4;
+    private final TextView randomWord5;
+    private final TextView randomWord6;
+    private final TextView randomWord7;
+    private final TextView randomWord8;
+    private final TextView randomWord9;
+    private final TextView randomWord10;
 
     public RandomWordsDialog(@NonNull Context context) {
         super(context);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_random_words);
 
+        //Errore randomWord1 isran
         randomWord1 = findViewById(R.id.randomWord1);
         randomWord2 = findViewById(R.id.randomWord2);
         randomWord3 = findViewById(R.id.randomWord3);
@@ -48,18 +51,23 @@ public class RandomWordsDialog extends Dialog {
         randomWord10 = findViewById(R.id.randomWord10);
 
         wordsGenerator = WordsGenerator.getInstance(gameChatController.getRoom(), gameChatController.getChat());
-        wordsGenerator.extractWordsFromInternet();
-
-        randomWord1.setText(wordsGenerator.getWords().get(0));
-        randomWord2.setText(wordsGenerator.getWords().get(1));
-        randomWord3.setText(wordsGenerator.getWords().get(2));
-        randomWord4.setText(wordsGenerator.getWords().get(3));
-        randomWord5.setText(wordsGenerator.getWords().get(4));
-        randomWord6.setText(wordsGenerator.getWords().get(5));
-        randomWord7.setText(wordsGenerator.getWords().get(6));
-        randomWord8.setText(wordsGenerator.getWords().get(7));
-        randomWord9.setText(wordsGenerator.getWords().get(8));
-        randomWord10.setText(wordsGenerator.getWords().get(9));
+        CompletableFuture<Boolean> future = wordsGenerator.extractWordsFromInternet();
+        future.thenAccept(result -> {
+            if (result) {
+                randomWord1.setText(wordsGenerator.getWords().get(0));
+                randomWord2.setText(wordsGenerator.getWords().get(1));
+                randomWord3.setText(wordsGenerator.getWords().get(2));
+                randomWord4.setText(wordsGenerator.getWords().get(3));
+                randomWord5.setText(wordsGenerator.getWords().get(4));
+                randomWord6.setText(wordsGenerator.getWords().get(5));
+                randomWord7.setText(wordsGenerator.getWords().get(6));
+                randomWord8.setText(wordsGenerator.getWords().get(7));
+                randomWord9.setText(wordsGenerator.getWords().get(8));
+                randomWord10.setText(wordsGenerator.getWords().get(9));
+            }else{
+                wordsGenerator.getChat().add(new MessageNotificationView("Error in extracting words from the internet", Color.RED));
+            }
+        });
 
         randomWord1.setOnClickListener(v -> onWordClick(randomWord1));
         randomWord2.setOnClickListener(v -> onWordClick(randomWord2));

@@ -4,6 +4,7 @@ import android.graphics.Color;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.unina.guesstheword.GuessTheWordApplication;
 import com.unina.guesstheword.view.game.MessageNotificationView;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * This class extract from the API of "<a href="https://random-word-api.herokuapp.com/word">...</a>" 10 random
@@ -44,26 +46,29 @@ public class WordsGenerator {
         randomNumberGenerator = new Random();
     }
 
-    public void extractWordsFromInternet() {
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
+    public CompletableFuture<Boolean> extractWordsFromInternet() {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    JSONArray jsonArray = response.getJSONArray("word");
-                    words = new ArrayList<>(jsonArray.length());
-                    for (int i = 0; i < jsonArray.length(); i++)
-                        words.set(i, jsonArray.getString(i));
-                } catch (JSONException exc) {
-                    chat.add(new MessageNotificationView("Connection error. Can't extract random words" +
-                            " for the chooser." , Color.RED));
+                    JSONArray jsonArray = response.getJSONArray("words");
+                    words = new ArrayList<>();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        words.add(jsonArray.getString(i));
+                    }
+                    future.complete(true);
+                } catch (JSONException e) {
+                    future.complete(false);
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                chat.add(new MessageNotificationView("Connection error. Can't extract random words" +
-                        " for the chooser." , Color.RED));}
+                future.complete(false);
+            }
         });
+        return future;
     }
 
     public String getUrl() {
@@ -72,6 +77,10 @@ public class WordsGenerator {
 
     public ArrayList<String> getWords() {
         return words;
+    }
+
+    public LinkedList<ChatMessage> getChat() {
+        return chat;
     }
 
     public String getRandomWord() {

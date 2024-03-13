@@ -66,8 +66,9 @@ public class GameActivity extends GeneralActivity {
             chatRecyclerView.scrollToPosition(adapter.getItemCount() - 1);
         });
 
+        //Chooser show the random words dialog
         gameChatController.getMainPlayerStatusLiveData().observe(this, playerStatus -> {
-            if (playerStatus == PlayerStatus.CHOOSER) {
+            if(playerStatus == PlayerStatus.CHOOSER) {
                 randomWordsDialog = new RandomWordsDialog(this);
                 randomWordsDialog.show();
             }
