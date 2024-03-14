@@ -20,7 +20,7 @@ public class Room implements JSONData {
 //    private int port;
 
     private String address;
-    private int round;
+    private int round = 0;
     private final Language language;
     @Nullable
     private LinkedList<Player> players;
@@ -100,7 +100,7 @@ public class Room implements JSONData {
         inGame = jsonObject.getBoolean("inGame");
 //        port = jsonObject.getInt("port");
         address =  jsonObject.getString("address");
-        round = jsonObject.getInt("round");
+        //round = jsonObject.getInt("round");
         language = Language.fromString(jsonObject.getString("language"));
         try{
             jsonObject.get("players");

@@ -72,9 +72,9 @@ public class Game {
         StringBuilder ret = new StringBuilder();
         for (char letter : word.toCharArray()) {
             if (revealedLetters.indexOf(letter) == -1)
-                ret.append("_");
+                ret.append("_").append(" ");
             else
-                ret.append(letter);
+                ret.append(letter).append(" ");
         }
         return ret.toString();
     }

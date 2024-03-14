@@ -16,7 +16,8 @@ import com.unina.guesstheword.control.GameChatController;
 import com.unina.guesstheword.data.model.GameChatResponse;
 import com.unina.guesstheword.data.model.GameChatResponseType;
 import com.unina.guesstheword.data.model.WordChosen;
-import com.unina.guesstheword.data.model.WordsGenerator;
+import com.unina.guesstheword.service.WordsGenerator;
+
 import org.json.JSONException;
 
 import java.util.concurrent.CompletableFuture;
@@ -53,24 +54,22 @@ public class RandomWordsDialog extends Dialog {
         randomWord9 = findViewById(R.id.randomWord9);
         randomWord10 = findViewById(R.id.randomWord10);
 
-        wordsGenerator = WordsGenerator.getInstance(gameChatController.getRoom(), gameChatController.getChat());
-        CompletableFuture<Boolean> future = wordsGenerator.extractWordsFromInternet();
-        future.thenAccept(result -> {
-            if (result) {
-                randomWord1.setText(wordsGenerator.getWords().get(0));
-                randomWord2.setText(wordsGenerator.getWords().get(1));
-                randomWord3.setText(wordsGenerator.getWords().get(2));
-                randomWord4.setText(wordsGenerator.getWords().get(3));
-                randomWord5.setText(wordsGenerator.getWords().get(4));
-                randomWord6.setText(wordsGenerator.getWords().get(5));
-                randomWord7.setText(wordsGenerator.getWords().get(6));
-                randomWord8.setText(wordsGenerator.getWords().get(7));
-                randomWord9.setText(wordsGenerator.getWords().get(8));
-                randomWord10.setText(wordsGenerator.getWords().get(9));
-            }else{
-                wordsGenerator.getChat().add(new MessageNotificationView("Error in extracting words from the internet", Color.RED));
-            }
-        });
+        wordsGenerator = WordsGenerator.getInstance(gameChatController.getRoom());
+        Boolean result = wordsGenerator.extractWordsFromInternet();
+        if (result) {
+            randomWord1.setText(wordsGenerator.getWords().get(0));
+            randomWord2.setText(wordsGenerator.getWords().get(1));
+            randomWord3.setText(wordsGenerator.getWords().get(2));
+            randomWord4.setText(wordsGenerator.getWords().get(3));
+            randomWord5.setText(wordsGenerator.getWords().get(4));
+            randomWord6.setText(wordsGenerator.getWords().get(5));
+            randomWord7.setText(wordsGenerator.getWords().get(6));
+            randomWord8.setText(wordsGenerator.getWords().get(7));
+            randomWord9.setText(wordsGenerator.getWords().get(8));
+            randomWord10.setText(wordsGenerator.getWords().get(9));
+        } else {
+            gameChatController.getChat().add(new MessageNotificationView("Error in extracting words from the internet", Color.RED));
+        }
 
         randomWord1.setOnClickListener(v -> onWordClick(randomWord1));
         randomWord2.setOnClickListener(v -> onWordClick(randomWord2));
@@ -83,7 +82,8 @@ public class RandomWordsDialog extends Dialog {
         randomWord9.setOnClickListener(v -> onWordClick(randomWord9));
         randomWord10.setOnClickListener(v -> onWordClick(randomWord10));
 
-        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        setCancelable(false);
+        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         getWindow().setGravity(Gravity.TOP);

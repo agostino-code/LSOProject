@@ -26,6 +26,7 @@
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginTop="16dp"
+        android:inputType="text"
         android:hint="@string/prompt_room_name"
         android:selectAllOnFocus="true"
         app:layout_constraintEnd_toEndOf="parent"

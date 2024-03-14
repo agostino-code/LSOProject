@@ -57,6 +57,7 @@ public class Controller {
             public void run() {
                 new AlertDialog.Builder(currentActivity)
                         .setTitle("Connection failed")
+                        .setCancelable(false)
                         .setMessage("The connection to the server has failed. Please check your internet connection and try again.")
                         .setPositiveButton("RETRY", (dialog, which) -> {
                             dialog.dismiss();

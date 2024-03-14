@@ -10,6 +10,12 @@ public class ServerMessage implements JSONData {
     private final boolean isGuessed;
     private final String username;
 
+    public ServerMessage(@NonNull String message, boolean isGuessed, @NonNull String username) {
+        this.message = message;
+        this.isGuessed = isGuessed;
+        this.username = username;
+    }
+
     /**
      * Constructor
      *
