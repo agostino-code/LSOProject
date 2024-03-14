@@ -13,8 +13,11 @@ import androidx.annotation.NonNull;
 
 import com.unina.guesstheword.R;
 import com.unina.guesstheword.control.GameChatController;
+import com.unina.guesstheword.data.model.GameChatResponse;
+import com.unina.guesstheword.data.model.GameChatResponseType;
 import com.unina.guesstheword.data.model.WordChosen;
 import com.unina.guesstheword.data.model.WordsGenerator;
+import org.json.JSONException;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -87,7 +90,13 @@ public class RandomWordsDialog extends Dialog {
     }
 
     private void onWordClick(TextView word) {
-        gameChatController.startGame(new WordChosen(word.getText().toString()));
+        WordChosen wordChosen = new WordChosen(word.getText().toString());
+        try {
+            gameChatController.getMulticastServer().sendMessages(new GameChatResponse(GameChatResponseType.WORD_CHOSEN, wordChosen.toJSON()).toJSON());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        gameChatController.startGame(wordChosen);
         dismiss();
     }
 }

@@ -341,6 +341,11 @@ public class GameChatController {
             if (isChoosingTimeFinished(Room.CHOOSING_TIME_IN_MILLISECONDS)) {
                 randomWordsDialog.dismiss();
                 WordChosen randomWord = new WordChosen(WordsGenerator.getInstance(room, chat).getRandomWord());
+                try {
+                    multicast.sendMessages(new GameChatResponse(GameChatResponseType.WORD_CHOSEN, randomWord.toJSON()).toJSON());
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
                 startGame(randomWord);
             }
         }
@@ -362,11 +367,6 @@ public class GameChatController {
         room.setIsInGame(true);
         String notification = "Word chosen! The word to guess is " + currentGame.getIncompleteWord();
         chat.add(new MessageNotificationView(notification, Color.YELLOW));
-        try {
-            multicast.sendMessages(new GameChatResponse(GameChatResponseType.WORD_CHOSEN, wordChosen.toJSON()).toJSON());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
         GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> chatLiveData.setValue(chat));
     }
 

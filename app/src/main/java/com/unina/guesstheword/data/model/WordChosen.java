@@ -32,7 +32,7 @@ public class WordChosen implements JSONData {
      */
     public WordChosen(JSONObject json) throws JSONException {
         word = json.getString("word");
-        mixedLetters = json.getString("mixedLetters");
+        mixedLetters = json.getString("mixedletters");
     }
 
     public String getWord() {
@@ -72,7 +72,7 @@ public class WordChosen implements JSONData {
     public String toJSON() throws JSONException {
         JSONObject jsonWordChosen = new JSONObject();
         jsonWordChosen.put("word", word);
-        jsonWordChosen.put("mixedLetters", mixedLetters);
+        jsonWordChosen.put("mixedletters", mixedLetters);
         return jsonWordChosen.toString();
     }
 }
