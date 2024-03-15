@@ -115,6 +115,6 @@ public class Game {
     }
 
     public boolean isWordFullRevealed() {
-        return word.equals(incompleteWord);
+        return mixedLetters.length() == 0;
     }
 }

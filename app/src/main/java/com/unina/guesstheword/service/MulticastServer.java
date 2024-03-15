@@ -18,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 public class MulticastServer extends Thread{
     protected MulticastSocket socket;
     protected WifiManager.MulticastLock lock;
+    protected boolean isRunning = true;
 
     String address;
     protected byte[] buf = new byte[1024];
@@ -44,17 +45,28 @@ public class MulticastServer extends Thread{
 
     public void run() {
         try {
-            while (true) {
+            while (isRunning) {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                String received = null;
+
                 socket.receive(packet);
-                String received = new String(packet.getData(), 0, packet.getLength());
-                GameChatResponse gameChatResponse = new GameChatResponse(received);
-                GameChatController.getInstance().listenServer(gameChatResponse);
+
+                if (packet.getLength() > 0)
+                    received = new String(packet.getData(), 0, packet.getLength());
+
+                GameChatResponse gameChatResponse=null;
+
+                if(received.contains("responseType"))
+                    gameChatResponse = new GameChatResponse(received);
+
+                if(!GameChatController.isInstanceNull())
+                    GameChatController.getInstance().listenServer(gameChatResponse);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
     public void sendMessages(String message) {
         CompletableFuture.runAsync(() -> {
             try {
@@ -67,12 +79,15 @@ public class MulticastServer extends Thread{
         }).join();
     }
 
+    public void stopReceivingMessages() {
+        isRunning = false;
+    }
+
     public void close() {
         try {
             socket.leaveGroup(group);
             socket.close();
             lock.release();
-            this.interrupt();
         } catch (Exception e) {
             e.printStackTrace();
         }

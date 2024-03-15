@@ -24,7 +24,6 @@ public class Room implements JSONData {
     private final Language language;
     @Nullable
     private LinkedList<Player> players;
-    private int indexOfChooser;
 
     /**
      * Constructor called when the room is first created
@@ -43,7 +42,6 @@ public class Room implements JSONData {
         players = new LinkedList<Player>();
         players.add(host);
         numberOfPlayers = players.size();
-        indexOfChooser = -1;
         //TODO: create port to pass to the server
     }
 
@@ -70,11 +68,6 @@ public class Room implements JSONData {
         this.language = language;
         this.players = players;
         int i = 0;
-        for (Player player : players) {
-            if (player.getStatus() == PlayerStatus.CHOOSER)
-                indexOfChooser = i;
-            i++;
-        }
         this.players.add(guest);
         numberOfPlayers = this.players.size();
     }
@@ -98,7 +91,6 @@ public class Room implements JSONData {
         numberOfPlayers = jsonObject.getInt("numberOfPlayers");
         maxNumberOfPlayers = jsonObject.getInt("maxNumberOfPlayers");
         inGame = jsonObject.getBoolean("inGame");
-//        port = jsonObject.getInt("port");
         address =  jsonObject.getString("address");
         //round = jsonObject.getInt("round");
         language = Language.fromString(jsonObject.getString("language"));
@@ -155,7 +147,11 @@ public class Room implements JSONData {
     }
 
     public Player getChooser() {
-        return players.get(indexOfChooser);
+        for (Player player : players) {
+            if (player.getStatus() == PlayerStatus.CHOOSER)
+                return player;
+        }
+        return null;
     }
 
     /*
@@ -176,20 +172,12 @@ public class Room implements JSONData {
      * this function set the given player as the chooser and all the other players as the guesser
      */
     public void setChooser(String chooserUsername) {
-        if(chooserUsername == null) {
-            indexOfChooser = -1;
-            return;
-        }
 
-        int i=0;
         for (Player player : players) {
-            if (player.getUsername().equals(chooserUsername)) {
+            if (player.getUsername().equals(chooserUsername))
                 player.setStatus(PlayerStatus.CHOOSER);
-                indexOfChooser = i;
-            }
             else
                 player.setStatus(PlayerStatus.GUESSER);
-            i++;
         }
     }
 
@@ -223,7 +211,6 @@ public class Room implements JSONData {
     }
 
     public void resetStateOfAllPlayers() {
-        indexOfChooser = -1;
         for (Player player : players)
             player.setStatus(PlayerStatus.GUESSER);
     }
@@ -237,7 +224,11 @@ public class Room implements JSONData {
     }
 
     public boolean thereIsAChooser() {
-        return indexOfChooser != -1;
+        for (Player player : players) {
+            if (player.getStatus() == PlayerStatus.CHOOSER)
+                return true;
+        }
+        return false;
     }
 
     public JSONObject toJSONObject() throws JSONException {

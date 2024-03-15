@@ -41,26 +41,7 @@ public class GameActivity extends GeneralActivity {
     private final OnBackPressedCallback callback = new OnBackPressedCallback(true) {
         @Override
         public void handleOnBackPressed() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(GuessTheWordApplication.getAppContext());
-            builder.setTitle("Exit from the room");
-            builder.setMessage("Are you sure you want to exit from the room? You will lose all your points.");
-            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    gameChatController.sendExitNotification();
-//                sendNotificationToServer(new ServerNotification(gameChatController.getMainPlayer(), WhatHappened.LEFT));
-                    GameChatController.close();
-                    goBackToMenu();
-                }
-            });
-            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel(); // Close the dialog
-                }
-            });
-            builder.setCancelable(true); // Allow the user to cancel the dialog by pressing outside the dialog
-            builder.show();
+            exitGame();
         }
     };
 
@@ -72,6 +53,10 @@ public class GameActivity extends GeneralActivity {
         setContentView(binding.getRoot());
         getOnBackPressedDispatcher().addCallback(this, callback);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         backButton = binding.gameBackButton;
         roomNameTextView = binding.gameRoomName;
         incompleteWordTextView = binding.incompleteWord;
@@ -81,14 +66,22 @@ public class GameActivity extends GeneralActivity {
         chatRecyclerView = binding.gameChatRecycler;
         progressBar = binding.loading;
 
-        backButton.setOnClickListener(v -> onBackPressed());
+        backButton.setOnClickListener(v -> exitGame());
 
         roomNameTextView.setText(gameChatController.getRoom().getName());
-        incompleteWordTextView.setText(gameChatController.getIncompleteWord());
 
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MessagesAdapter(gameChatController.getChat(), this);
         chatRecyclerView.setAdapter(adapter);
+
+        gameChatController.getCurrentGameLiveData().observe(this, game -> {
+            if (game != null) {
+                if (gameChatController.getMainPlayer().getStatus() == PlayerStatus.GUESSER)
+                    incompleteWordTextView.setText(game.getIncompleteWord());
+                else
+                    incompleteWordTextView.setText(game.getWord());
+            }
+        });
 
         gameChatController.getChatLiveData().observe(this, chat -> {
             adapter = new MessagesAdapter(chat, this);
@@ -98,15 +91,15 @@ public class GameActivity extends GeneralActivity {
 
         //Chooser show the random words dialog
         gameChatController.getMainPlayerStatusLiveData().observe(this, playerStatus -> {
-            if(playerStatus == PlayerStatus.CHOOSER) {
+            if (playerStatus == PlayerStatus.CHOOSER) {
                 sendButton.setEnabled(true);
                 randomWordsDialog = new RandomWordsDialog(this);
                 randomWordsDialog.show();
             }
-            if(playerStatus == PlayerStatus.SPECTATOR) {
+            if (playerStatus == PlayerStatus.SPECTATOR) {
                 sendButton.setEnabled(false);
             }
-            if(playerStatus == PlayerStatus.GUESSER) {
+            if (playerStatus == PlayerStatus.GUESSER) {
                 sendButton.setEnabled(true);
             }
         });
@@ -130,7 +123,7 @@ public class GameActivity extends GeneralActivity {
         });
 
         new Thread(() -> {
-            while(true) {
+            while (true) {
                 gameChatController.updateGame(randomWordsDialog);
             }
         }).start();
@@ -144,11 +137,11 @@ public class GameActivity extends GeneralActivity {
     }
 
     public void sendMessage(View view) {
-        if(messageToSend.isEmpty())
+        if (messageToSend.isEmpty())
             return;
 //        ServerMessage serverMessage = new ServerMessage(messageToSend, gameChatController.getWordToGuess(), gameChatController.getMainPlayer());
 //        sendChatMessageToServer(serverMessage);
-        if(gameChatController.getMainPlayerStatusLiveData().getValue() != PlayerStatus.SPECTATOR) {
+        if (gameChatController.getMainPlayerStatusLiveData().getValue() != PlayerStatus.SPECTATOR) {
             gameChatController.sendMessage(messageToSend);
             editMessage.setText("");
             adapter.notifyDataSetChanged();
@@ -179,6 +172,31 @@ public class GameActivity extends GeneralActivity {
     public void goBackToMenu() {
         Intent switchActivities = new Intent(this, MenuActivity.class);
         startActivity(switchActivities);
+    }
+
+    private void exitGame() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
+        builder.setTitle("Exit from the room");
+        builder.setMessage("Are you sure you want to exit from the room? You will lose all your points.");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                boolean success = gameChatController.sendExitNotification();
+                if (success) {
+                    GameChatController.close();
+                    goBackToMenu();
+                } else
+                    showErrorMessage("Connection error, try again later or restart the application.");
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel(); // Close the dialog
+            }
+        });
+        builder.setCancelable(true); // Allow the user to cancel the dialog by pressing outside the dialog
+        builder.show();
     }
 }
 

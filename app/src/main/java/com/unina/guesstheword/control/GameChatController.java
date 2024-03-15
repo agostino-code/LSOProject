@@ -1,5 +1,7 @@
 package com.unina.guesstheword.control;
 
+import static java.lang.Thread.sleep;
+
 import android.graphics.Color;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,30 +27,29 @@ public class GameChatController {
 
     private final MutableLiveData<PlayerStatus> mainPlayerStatusLiveData = new MutableLiveData<>();
     private final Player mainPlayer;
+
     private final Room room;
+
+    private final MutableLiveData<Game> currentGameLiveData = new MutableLiveData<>();
     @Nullable
     private Game currentGame;
+
     private final MutableLiveData<LinkedList<ChatMessage>> chatLiveData = new MutableLiveData<>(new LinkedList<>());
     private final LinkedList<ChatMessage> chat = chatLiveData.getValue();
     private long initialTime;
 
     private MulticastServer multicast;
 
-    public MutableLiveData<LinkedList<ChatMessage>> getChatLiveData() {
-        return chatLiveData;
-    }
-
-    public MutableLiveData<PlayerStatus> getMainPlayerStatusLiveData() {
-        return mainPlayerStatusLiveData;
-    }
-
     /**
      * Called when the user exit the room
      */
     public static synchronized void close() {
-        instance.getMulticastServer().close();
         instance = null;
         WordsGenerator.resetInstance();
+    }
+
+    public static boolean isInstanceNull() {
+        return instance == null;
     }
 
     /**
@@ -73,6 +74,7 @@ public class GameChatController {
         mainPlayerStatusLiveData.setValue(mainPlayer.getStatus());
         this.room = room;
         currentGame = null;
+        currentGameLiveData.setValue(null);
         connectToMulticast();
     }
 
@@ -100,6 +102,7 @@ public class GameChatController {
         mainPlayerStatusLiveData.setValue(this.mainPlayer.getStatus());
         this.room = room;
         this.currentGame = currentGame;
+        currentGameLiveData.setValue(this.currentGame);
         connectToMulticast();
     }
 
@@ -123,28 +126,23 @@ public class GameChatController {
     /*
      * Getters
      */
+    public MutableLiveData<LinkedList<ChatMessage>> getChatLiveData() {
+        return chatLiveData;
+    }
+    public MutableLiveData<PlayerStatus> getMainPlayerStatusLiveData() {
+        return mainPlayerStatusLiveData;
+    }
+    public MutableLiveData<Game> getCurrentGameLiveData() {
+        return currentGameLiveData;
+    }
     public LinkedList<ChatMessage> getChat() {
         return chat;
     }
-
-    public String getWordToGuess() {
-        if(currentGame == null)
-            return null;
-        return currentGame.getWord();
-    }
-
     public Player getMainPlayer() {
         return mainPlayer;
     }
-
     public Room getRoom() {
         return room;
-    }
-
-    public String getIncompleteWord() {
-        if(currentGame == null)
-            return null;
-        return currentGame.getIncompleteWord();
     }
 
     public LinkedList<Player> getPlayers() {
@@ -234,33 +232,23 @@ public class GameChatController {
      * (the guesser wins) or when nobody guesses the word but the time finishes (the chooser wins)
      */
     private void finishGame(String winnerUsername) {
-        Player winner = room.getPlayer(winnerUsername);
-        switch (winner.getStatus()) {
-            case GUESSER:
-                winner.addPoints(currentGame.getPointsForGuesser());
-                break;
-            case CHOOSER:
-                winner.addPoints(currentGame.getPointsForChooser());
-                break;
-        }
-
-        /*
-        if (mainPlayer.getUsername().equals(winnerUsername))
-            switch (mainPlayer.getStatus()) {
+        if(winnerUsername != null) {
+            Player winner = room.getPlayer(winnerUsername);
+            switch (winner.getStatus()) {
                 case GUESSER:
-                    mainPlayer.addPoints(currentGame.getPointsForGuesser());
+                    winner.addPoints(currentGame.getPointsForGuesser());
                     break;
                 case CHOOSER:
-                    mainPlayer.addPoints(currentGame.getPointsForChooser());
+                    winner.addPoints(currentGame.getPointsForChooser());
                     break;
             }
-
-         */
+        }
 
         room.setIsInGame(false);
         room.resetStateOfAllPlayers();
         room.incrementRound();
         currentGame = null;
+        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> currentGameLiveData.setValue(null));
         mainPlayer.setStatus(PlayerStatus.GUESSER);
         GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> mainPlayerStatusLiveData.setValue(mainPlayer.getStatus()));
     }
@@ -306,12 +294,18 @@ public class GameChatController {
             case LEFT:
                 room.removePlayer(serverNotification.getPlayer());
                 chat.add(new MessageNotificationView(serverNotification));
+                //if(getNumberOfPlayers()==1 && room.isInGame()) {
+                //    finishGame(null);
+                //}
                 break;
         }
         GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> chatLiveData.setValue(chat));
     }
 
-    public void listenServer(GameChatResponse response) {
+    public void listenServer(@Nullable GameChatResponse response) {
+        if(response == null)
+            return;
+
         GameChatResponseType type = response.getType();
         try {
             if (type == GameChatResponseType.SERVER_MESSAGE) {
@@ -340,16 +334,24 @@ public class GameChatController {
         if (room.isInGame()) {
             if (currentGame.isRoundFinished(Room.TIME_PER_ROUND_IN_MILLISECONDS)) {
                 char revealedLetter = currentGame.revealOneMoreLetter();
+                GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> currentGameLiveData.setValue(currentGame));
                 String notification1 = "letter " + revealedLetter +
                         " revealed. Now the known word is\n" + currentGame.getIncompleteWord();
                 chat.add(new MessageNotificationView(notification1, Color.YELLOW));
-                GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> chatLiveData.setValue(chat));
                 if (currentGame.isWordFullRevealed()) {
-                    String notification2 = "Nobody guessed the word. " + room.getChooser().getUsername() +
-                            " wins the game! (+ " + currentGame.getPointsForChooser() + " points)";
-                    chat.add(new MessageNotificationView(notification2, Color.GREEN));
-                    finishGame(room.getChooser().getUsername());
+                    if(room.thereIsAChooser()) {
+                        String notification2 = "Nobody guessed the word. " + room.getChooser().getUsername() +
+                                " wins the game! (+ " + currentGame.getPointsForChooser() + " points)";
+                        chat.add(new MessageNotificationView(notification2, Color.GREEN));
+                        finishGame(room.getChooser().getUsername());
+                    }
+                    else {
+                        String notification2 = "Nobody guessed the word and the chooser left the game :(. The game is finished!";
+                        chat.add(new MessageNotificationView(notification2, Color.GREEN));
+                        finishGame(null);
+                    }
                 }
+                GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> chatLiveData.setValue(chat));
             }
         } else if(mainPlayer.getStatus() == PlayerStatus.CHOOSER && room.isInGame()) {
             if (isChoosingTimeFinished(Room.CHOOSING_TIME_IN_MILLISECONDS)) {
@@ -378,6 +380,7 @@ public class GameChatController {
 
     public void startGame(WordChosen wordChosen) {
         currentGame = new Game(wordChosen);
+        GuessTheWordApplication.getInstance().getCurrentActivity().runOnUiThread(() -> currentGameLiveData.setValue(currentGame));
         room.setIsInGame(true);
         String notification = "Word chosen! The word to guess is\n" + currentGame.getIncompleteWord();
         chat.add(new MessageNotificationView(notification, Color.YELLOW));
@@ -398,15 +401,20 @@ public class GameChatController {
      * This function is called when the main player exit the game.
      * You must send the ServerNotification returned by this method to all the other players
      */
-    public void sendExitNotification() {
+    public boolean sendExitNotification() {
         ServerNotification serverNotification = new ServerNotification(mainPlayer, WhatHappened.LEFT);
         try {
-            multicast.sendMessages(serverNotification.toJSON());
+            multicast.stopReceivingMessages();
+            GameChatResponse response = new GameChatResponse(GameChatResponseType.SERVER_NOTIFICATION, serverNotification.toJSON());
+            multicast.sendMessages(response.toJSON());
+            sleep(1000);
+            multicast.close();
+            return true;
         } catch (JSONException e) {
             throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            return false;
         }
-        multicast.close();
-        //T
     }
 
     public MulticastServer getMulticastServer() {

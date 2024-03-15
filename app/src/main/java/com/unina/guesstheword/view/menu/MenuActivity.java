@@ -35,8 +35,12 @@ public class MenuActivity extends GeneralActivity {
     }
 
     public void goToFindGameActivity(View v) {
-        Intent switchActivities = new Intent(this, FindGameActivity.class);
-        startActivity(switchActivities);
+        if(!Controller.getInstance().isConnectionAlive())
+            showErrorMessage("No connection available");
+        else {
+            Intent switchActivities = new Intent(this, FindGameActivity.class);
+            startActivity(switchActivities);
+        }
     }
 
     public void goToCreateGameActivity(View v) {
