@@ -17,7 +17,6 @@ public class Room implements JSONData {
     private int numberOfPlayers;
     private final int maxNumberOfPlayers;
     private boolean inGame;
-//    private int port;
 
     private String address;
     private int round = 0;
@@ -39,10 +38,9 @@ public class Room implements JSONData {
         this.language = language;
         inGame = false;
         round = 0;
-        players = new LinkedList<Player>();
+        players = new LinkedList<>();
         players.add(host);
         numberOfPlayers = players.size();
-        //TODO: create port to pass to the server
     }
 
     /**
@@ -62,7 +60,6 @@ public class Room implements JSONData {
         this.name = name;
         this.maxNumberOfPlayers = maxNumberOfPlayers;
         this.inGame = IsGaming;
-//        this.port = port;
         this.address = address;
         this.round = round;
         this.language = language;
@@ -80,7 +77,6 @@ public class Room implements JSONData {
         this.numberOfPlayers = numberOfPlayers;
         this.maxNumberOfPlayers = maxNumberOfPlayers;
         this.address = address;
-//        this.port = port;
         this.language = language;
         players = null;
     }
@@ -92,11 +88,10 @@ public class Room implements JSONData {
         maxNumberOfPlayers = jsonObject.getInt("maxNumberOfPlayers");
         inGame = jsonObject.getBoolean("inGame");
         address =  jsonObject.getString("address");
-        //round = jsonObject.getInt("round");
         language = Language.fromString(jsonObject.getString("language"));
         try{
             jsonObject.get("players");
-            players = new LinkedList<Player>();
+            players = new LinkedList<>();
             JSONArray playersArray = jsonObject.getJSONArray("players");
             for (int i = 0; i < playersArray.length(); i++) {
                 players.add(new Player(playersArray.getJSONObject(i).toString()));
@@ -104,7 +99,6 @@ public class Room implements JSONData {
         } catch (JSONException e) {
             players = null;
         }
-//        indexOfChooser = jsonObject.getInt("indexOfChooser");
     }
 
     /*
@@ -113,30 +107,21 @@ public class Room implements JSONData {
     public String getName() {
         return name;
     }
-
     public int getNumberOfPlayers() {
         return numberOfPlayers;
     }
-
     public int getMaxNumberOfPlayers() {
         return maxNumberOfPlayers;
     }
-
     public boolean isInGame() {
         return inGame;
     }
-
-//    public int getPort() {
-//        return port;
-//    }
-
     public String getAddress() {
         return address;
     }
     public int getRound() {
         return round;
     }
-
     public Language getLanguage() {
         return language;
     }
@@ -168,6 +153,7 @@ public class Room implements JSONData {
     public void setAddress(String address) {
         this.address = address;
     }
+
     /**
      * this function set the given player as the chooser and all the other players as the guesser
      */
@@ -226,6 +212,14 @@ public class Room implements JSONData {
     public boolean thereIsAChooser() {
         for (Player player : players) {
             if (player.getStatus() == PlayerStatus.CHOOSER)
+                return true;
+        }
+        return false;
+    }
+
+    public boolean hasPlayer(String username) {
+        for (Player player : players) {
+            if (player.getUsername().equals(username))
                 return true;
         }
         return false;

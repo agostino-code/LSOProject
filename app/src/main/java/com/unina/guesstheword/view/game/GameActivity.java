@@ -25,6 +25,7 @@ import com.unina.guesstheword.view.menu.MenuActivity;
  */
 public class GameActivity extends GeneralActivity {
     private GameChatController gameChatController = GameChatController.getInstance();
+    private boolean running = true;
 
     private String messageToSend;
 
@@ -76,10 +77,10 @@ public class GameActivity extends GeneralActivity {
 
         gameChatController.getCurrentGameLiveData().observe(this, game -> {
             if (game != null) {
-                if (gameChatController.getMainPlayer().getStatus() == PlayerStatus.GUESSER)
-                    incompleteWordTextView.setText(game.getIncompleteWord());
-                else
+                if (gameChatController.getMainPlayer().getStatus() == PlayerStatus.CHOOSER)
                     incompleteWordTextView.setText(game.getWord());
+                else
+                    incompleteWordTextView.setText(game.getIncompleteWord());
             }
         });
 
@@ -93,14 +94,17 @@ public class GameActivity extends GeneralActivity {
         gameChatController.getMainPlayerStatusLiveData().observe(this, playerStatus -> {
             if (playerStatus == PlayerStatus.CHOOSER) {
                 sendButton.setEnabled(true);
+                editMessage.setEnabled(true);
                 randomWordsDialog = new RandomWordsDialog(this);
                 randomWordsDialog.show();
             }
             if (playerStatus == PlayerStatus.SPECTATOR) {
                 sendButton.setEnabled(false);
+                editMessage.setEnabled(false);
             }
             if (playerStatus == PlayerStatus.GUESSER) {
                 sendButton.setEnabled(true);
+                editMessage.setEnabled(true);
             }
         });
 
@@ -123,7 +127,7 @@ public class GameActivity extends GeneralActivity {
         });
 
         new Thread(() -> {
-            while (true) {
+            while (running) {
                 gameChatController.updateGame(randomWordsDialog);
             }
         }).start();
@@ -132,6 +136,7 @@ public class GameActivity extends GeneralActivity {
     @Override
     public void onDestroy() {
         GameChatController.getInstance().sendExitNotification();
+        running = false;
         GameChatController.close();
         super.onDestroy();
     }
@@ -153,18 +158,6 @@ public class GameActivity extends GeneralActivity {
         dialog.show();
     }
 
-//    private void sendNotificationToServer(ServerNotification serverNotification) {
-//        progressBar.setVisibility(ProgressBar.VISIBLE);
-//        //TODO per agostino: send notification to server (to other players)
-//        progressBar.setVisibility(ProgressBar.GONE);
-//    }
-
-//    private void sendChatMessageToServer(ServerMessage serverMessage) {
-//        progressBar.setVisibility(ProgressBar.VISIBLE);
-//        //TODO per agostino: send message to server (to other players)
-//        progressBar.setVisibility(ProgressBar.GONE);
-//    }
-
     public void showErrorMessage(String errorMessage) {
         Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
     }
@@ -183,6 +176,7 @@ public class GameActivity extends GeneralActivity {
             public void onClick(DialogInterface dialog, int which) {
                 boolean success = gameChatController.sendExitNotification();
                 if (success) {
+                    running = false;
                     GameChatController.close();
                     goBackToMenu();
                 } else

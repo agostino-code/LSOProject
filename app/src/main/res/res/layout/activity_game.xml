@@ -56,7 +56,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- TODO: come "hint" metti la parola vuota da indovinare. ES: A__E__-->
         <EditText
             android:layout_marginStart="16dp"
             android:id="@+id/game_chat_edit_message"
@@ -65,7 +64,7 @@
             android:layout_centerVertical="true"
             android:layout_toStartOf="@+id/game_chat_send_button"
             android:background="@android:color/transparent"
-            android:hint="Enter Message"
+            android:hint="@string/game_chat_message_hint"
             android:inputType="text"
             android:maxLines="6"
             tools:ignore="Autofill" />

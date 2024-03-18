@@ -5,10 +5,12 @@ import android.app.AlertDialog;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import com.unina.guesstheword.Constants;
 import com.unina.guesstheword.GuessTheWordApplication;
 import com.unina.guesstheword.R;
 import com.unina.guesstheword.data.model.*;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -222,9 +224,9 @@ public class Controller {
         Request request = new Request("JOIN_ROOM", room);
         Response response = sendRequestAndGetResponse(request);
         if (response.getResponseType().equals("SUCCESS")) {
-            Player player = new Player(user);
             try {
                 Room jsonroom = new Room(response.getData());
+                Player player = new Player(user, jsonroom.isInGame());
 
                 Room newroom = new Room(jsonroom.getName(),
                         jsonroom.getMaxNumberOfPlayers(),
@@ -236,18 +238,18 @@ public class Controller {
                         player);
 
                 //Get json "word" and convert it to string
-                if(newroom.isInGame()) {
+                if (newroom.isInGame()) {
                     //Game
                     JSONObject jsonObject = new JSONObject(response.getData());
                     String word = jsonObject.getString("word");
                     String mixedLetters = jsonObject.getString("mixedletters");
-                    WordChosen wordChosen = new WordChosen(word,mixedLetters);
+                    WordChosen wordChosen = new WordChosen(word, mixedLetters);
                     String revealedLetters = jsonObject.getString("revealedletters");
                     Game game = new Game(wordChosen, revealedLetters);
 
                     //GameChatController
                     GameChatController.setInstance(player, newroom, game);
-                }else{
+                } else {
                     GameChatController.setInstance(player, newroom, null);
                 }
                 GameChatController.getInstance().sendJoinNotification();

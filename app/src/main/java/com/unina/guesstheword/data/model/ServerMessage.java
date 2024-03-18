@@ -25,8 +25,15 @@ public class ServerMessage implements JSONData {
      */
     public ServerMessage(@NonNull String message, @Nullable String wordToGuess, @NonNull String username) {
         this.message = message;
-        isGuessed = message.equals(wordToGuess);
         this.username = username;
+
+        if(wordToGuess == null)
+            isGuessed = false;
+        else {
+            String trimmedAndLowerCaseMessage = message.trim().toLowerCase();
+            String lowerCaseWordToGuess = wordToGuess.toLowerCase();
+            isGuessed = trimmedAndLowerCaseMessage.equals(lowerCaseWordToGuess);
+        }
     }
 
     public ServerMessage(String json) throws JSONException {

@@ -108,7 +108,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- TODO: come "hint" metti la parola vuota da indovinare. ES: A__E__-->
         <EditText
             android:layout_marginStart="16dp"
             android:id="@+id/game_chat_edit_message"

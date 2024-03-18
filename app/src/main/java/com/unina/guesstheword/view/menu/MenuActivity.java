@@ -7,17 +7,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+
 import com.unina.guesstheword.control.Controller;
 import com.unina.guesstheword.data.model.User;
 import com.unina.guesstheword.view.UserView;
 import com.unina.guesstheword.view.GeneralActivity;
+import com.unina.guesstheword.view.login.LoginActivity;
 
 public class MenuActivity extends GeneralActivity {
+    private final OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {}
+    };
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getOnBackPressedDispatcher().addCallback(this, callback);
 
         com.unina.guesstheword.databinding.ActivityMenuBinding binding = com.unina.guesstheword.databinding.ActivityMenuBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -50,5 +58,10 @@ public class MenuActivity extends GeneralActivity {
 
     public void showErrorMessage(String errorMessage) {
         Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+    }
+
+    public void goToLoginActivity() {
+        Intent switchActivities = new Intent(this, LoginActivity.class);
+        startActivity(switchActivities);
     }
 }

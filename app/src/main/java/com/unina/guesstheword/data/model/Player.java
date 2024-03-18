@@ -7,7 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Player implements JSONData {
-    @Nullable
+    @NonNull
     private PlayerStatus status;
     private int score;
 
@@ -40,7 +40,7 @@ public class Player implements JSONData {
      * Constructor called to create the other players of the room
      * @param avatar chosen between 16 images (must be a number between 1-16, you can use the MACROS of the User class)
      */
-    public Player(@Nullable PlayerStatus status, int score, @NonNull String username, int avatar) {
+    public Player(@NonNull PlayerStatus status, int score, @NonNull String username, int avatar) {
         this.status = status;
         this.score = score;
         this.username = username;
@@ -94,7 +94,7 @@ public class Player implements JSONData {
     /*
      * Setters
      */
-    public void setStatus(@Nullable PlayerStatus status) {
+    public void setStatus(@NonNull PlayerStatus status) {
         this.status = status;
     }
 
@@ -109,7 +109,7 @@ public class Player implements JSONData {
     /*
      * Getters
      */
-    @Nullable
+    @NonNull
     public PlayerStatus getStatus() {
         return status;
     }
@@ -145,11 +145,7 @@ public class Player implements JSONData {
 
     public JSONObject toJSONObject() throws JSONException {
         JSONObject jsonPlayer = new JSONObject();
-        if (status != null) {
-            jsonPlayer.put("status", status.getStatus());
-        } else {
-            jsonPlayer.put("status", JSONObject.NULL);
-        }
+        jsonPlayer.put("status", status.getStatus());
         jsonPlayer.put("score", this.score);
         jsonPlayer.put("username", this.username);
         jsonPlayer.put("avatar", this.avatar);

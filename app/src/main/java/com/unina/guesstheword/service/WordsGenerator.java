@@ -47,6 +47,7 @@ public class WordsGenerator {
     }
 
     private WordsGenerator(Room room) {
+        words = new ArrayList<>(10);
         language = room.getLanguage().getLanguageCode();
         randomNumberGenerator = new Random();
 
@@ -84,6 +85,9 @@ public class WordsGenerator {
     }
 
     public String getRandomWord() {
+        if(words == null || words.isEmpty())
+            return "ciao";
+
         int randomIndex = randomNumberGenerator.nextInt(words.size());
         return words.get(randomIndex);
     }

@@ -33,7 +33,7 @@ public class Request {
             // Convert the JSON object to a string
             return jsonObject.toString();
         } catch (JSONException e) {
-            throw new RuntimeException(e); //TODO: ATTENTO, se l'app crasha inspiegabilmente, potrebbe essere colpa di questo
+            throw new RuntimeException(e);
         }
     }
 

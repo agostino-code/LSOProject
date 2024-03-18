@@ -82,11 +82,10 @@ public class FindGameActivity extends GeneralActivity {
         progressBar.setVisibility(ProgressBar.VISIBLE);
 
 //        GameChatController.setInstance(new Player(Controller.getInstance().getUser()), room, null);
-        boolean success = Controller.getInstance().joinRoom(room); //TODO: join room
+        boolean success = Controller.getInstance().joinRoom(room);
             if(success) {
-                startRoomSocket(GameChatController.getInstance().getRoom());
                 goToGameActivity();
-                Toast.makeText(getApplicationContext(), "Entrato nella stanza con successo!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Entered the room successfully!", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getApplicationContext(), "Error entering the room", Toast.LENGTH_SHORT).show();
             }
@@ -99,19 +98,6 @@ public class FindGameActivity extends GeneralActivity {
                 81, 5, Language.ITALIAN, players, new Player(Controller.getInstance().getUser()));
          */
         return GameChatController.getInstance().getRoom();
-    }
-
-    private void startRoomSocket(Room room) {
-//        serviceIntent = new Intent(this, SocketService.class);
-//        serviceIntent.putExtra(SocketService.EXTRA_PORT, room.getPort()); // replace 3000 with your desired port
-//        startService(serviceIntent);
-    }
-
-    private Game retrieveCurrentGame(String address) {
-        progressBar.setVisibility(ProgressBar.VISIBLE);
-        //TODO: get current game from server
-        progressBar.setVisibility(ProgressBar.GONE);
-        return null;
     }
 
     private void goToGameActivity() {

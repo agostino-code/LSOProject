@@ -6,7 +6,7 @@ public class Game {
     private static final int pointsGap = 15;
 
     private final String word;
-    private final int pointsForGuesser;
+    private int pointsForGuesser;
     private final int pointsForChooser;
 
     /**
@@ -40,7 +40,7 @@ public class Game {
         this.word = wordChosen.getWord();
         this.mixedLetters = new StringBuilder(wordChosen.getMixedLetters());
         pointsForGuesser = word.length();
-        pointsForChooser = Math.max(0, pointsGap - pointsForGuesser);
+        pointsForChooser = Math.max(0, pointsGap - word.length());
         this.revealedLetters = revealedLetters;
         incompleteWord = calculateIncompleteWord();
         initialTime = System.currentTimeMillis();
@@ -54,7 +54,12 @@ public class Game {
     }
 
     public int getPointsForGuesser() {
-        return pointsForGuesser;
+        pointsForGuesser = 0;
+        for(int i=0; i<incompleteWord.length(); i++){
+            if(incompleteWord.charAt(i) == '_')
+                pointsForGuesser++;
+        }
+        return pointsForGuesser; //TODO: testa se funziona
     }
 
     public int getPointsForChooser() {
