@@ -19,4 +19,4 @@ Open this folder into **Android Studio** and run the application
 
 **Related Pepository**
 
-(https://github.com/agostino-code/CSoketLSO/)
+( https://github.com/agostino-code/CSoketLSO/ )
