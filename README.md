@@ -18,4 +18,5 @@ Open this folder into **Android Studio** and run the application
 - **Agostino Cesarano**: Contributed to the server part of the project.
 
 **Related Pepository**
+
 https://github.com/agostino-code/LSOProject/
